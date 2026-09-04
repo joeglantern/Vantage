@@ -1,11 +1,27 @@
 #!/bin/sh
-# Keeps AI attribution out of the tree itself, not just the commit message.
-# The hook file that does the checking is naturally exempt.
+# House style and secret hygiene, applied to the tree rather than the message.
+# The hooks themselves are exempt, since they have to name what they look for.
 
 staged=$(git diff --cached --name-only --diff-filter=ACM)
 [ -n "$staged" ] || exit 0
 
-banned='[Cc]laude\.ai\|Claude-Session\|Co-Authored-By:.*[Cc]laude\|Generated with \[Claude\|anthropic\.com/claude-code'
+# .env holds real credentials. It is gitignored, but --force exists and people
+# are tired at 6pm.
+if printf '%s\n' "$staged" | grep -qx '\.env'; then
+  printf '\ncommit rejected: .env holds real credentials and is never committed\n' >&2
+  printf 'Put valueless placeholders in .env.example instead.\n\n' >&2
+  exit 1
+fi
+
+# A credential in git history is forever, sandbox or not. docs/05 puts stolen
+# channel credentials at the top of the threat model, so this refuses the
+# shapes that carry one rather than trusting anyone to spot it in a diff.
+# An empty placeholder is fine; twenty or more credential characters is not.
+secret_keys='CONSUMER_KEY|CONSUMER_SECRET|SECURITY_CREDENTIAL|INITIATOR_PASSWORD|MASTER_KEY|PASSKEY|CALLBACK_SECRET'
+secret_value='[[:space:]]*[=:][[:space:]]*.?[A-Za-z0-9+/_-]{20,}'
+
+banned='Co-[Aa]uthored-[Bb]y:.*noreply@|/code/session_|🤖 [Gg]enerated with'
+emdash=$(printf '\342\200\224')
 
 found=''
 for file in $staged; do
@@ -13,18 +29,23 @@ for file in $staged; do
     .githooks/*) continue ;;
   esac
   [ -f "$file" ] || continue
-  # Text files only.
-  if git diff --cached --numstat -- "$file" | grep -q '^-'; then
-    continue
-  fi
-  hit=$(grep -n "$banned" "$file" 2>/dev/null)
+
+  hit=$(grep -nE "($secret_keys)\"?'?$secret_value" "$file" 2>/dev/null)
   if [ -n "$hit" ]; then
-    found="$found\n$file:\n$hit"
+    printf '\ncommit rejected: what looks like a live credential in %s\n\n%s\n\n' "$file" "$hit" >&2
+    printf 'Secrets belong in .env, which is gitignored. Rotate it if it ever landed here.\n\n' >&2
+    exit 1
   fi
+
+  hit=$(grep -nE "$banned" "$file" 2>/dev/null)
+  [ -n "$hit" ] && found="$found\n$file (attribution):\n$hit"
+
+  hit=$(grep -n "$emdash" "$file" 2>/dev/null)
+  [ -n "$hit" ] && found="$found\n$file (em dash):\n$hit"
 done
 
 if [ -n "$found" ]; then
-  printf '\ncommit rejected: AI attribution found in staged files\n' >&2
+  printf '\ncommit rejected: house style violation in staged files\n' >&2
   printf "$found\n\n" >&2
   exit 1
 fi
