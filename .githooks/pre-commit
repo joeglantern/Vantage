@@ -1,0 +1,32 @@
+#!/bin/sh
+# Keeps AI attribution out of the tree itself, not just the commit message.
+# The hook file that does the checking is naturally exempt.
+
+staged=$(git diff --cached --name-only --diff-filter=ACM)
+[ -n "$staged" ] || exit 0
+
+banned='[Cc]laude\.ai\|Claude-Session\|Co-Authored-By:.*[Cc]laude\|Generated with \[Claude\|anthropic\.com/claude-code'
+
+found=''
+for file in $staged; do
+  case "$file" in
+    .githooks/*) continue ;;
+  esac
+  [ -f "$file" ] || continue
+  # Text files only.
+  if git diff --cached --numstat -- "$file" | grep -q '^-'; then
+    continue
+  fi
+  hit=$(grep -n "$banned" "$file" 2>/dev/null)
+  if [ -n "$hit" ]; then
+    found="$found\n$file:\n$hit"
+  fi
+done
+
+if [ -n "$found" ]; then
+  printf '\ncommit rejected: AI attribution found in staged files\n' >&2
+  printf "$found\n\n" >&2
+  exit 1
+fi
+
+exit 0

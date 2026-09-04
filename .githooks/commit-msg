@@ -1,0 +1,29 @@
+#!/bin/sh
+# Rejects a commit message that carries an AI attribution trailer or an em dash.
+# Both are house style, not preference: the git history is a public artefact.
+
+msg_file="$1"
+[ -f "$msg_file" ] || exit 0
+
+# Strip comment lines; git puts template help in there.
+body=$(grep -v '^#' "$msg_file")
+
+fail() {
+  printf '\ncommit rejected: %s\n\n' "$1" >&2
+  printf 'Offending line(s):\n%s\n\n' "$2" >&2
+  exit 1
+}
+
+banned='[Cc]laude\|CLAUDE\|[Aa]nthropic\|ANTHROPIC\|Co-Authored-By:.*[Cc]laude\|Generated with\|generated with\|claude\.ai\|Claude-Session\|🤖'
+hits=$(printf '%s\n' "$body" | grep -n "$banned")
+if [ -n "$hits" ]; then
+  fail "commit messages must not carry AI attribution" "$hits"
+fi
+
+emdash=$(printf '\342\200\224')
+hits=$(printf '%s\n' "$body" | grep -n "$emdash")
+if [ -n "$hits" ]; then
+  fail "commit messages must not contain em dashes (use a comma, colon or full stop)" "$hits"
+fi
+
+exit 0

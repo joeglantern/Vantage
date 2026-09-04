@@ -1,0 +1,15 @@
+node_modules/
+dist/
+coverage/
+*.tsbuildinfo
+
+# Secrets never enter the repo. See docs/05 credential custody.
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+master-key*
+
+.DS_Store
+Thumbs.db

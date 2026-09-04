@@ -1,0 +1,46 @@
+{
+  "name": "vantage",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Stipend disbursement and donor-grade reconciliation for Kenyan organisations",
+  "license": "UNLICENSED",
+  "type": "module",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint .",
+    "test": "vitest run --project unit --project property",
+    "test:unit": "vitest run --project unit",
+    "test:property": "vitest run --project property",
+    "test:integration": "vitest run --project integration",
+    "test:watch": "vitest",
+    "db:generate": "prisma generate",
+    "db:migrate": "prisma migrate dev",
+    "db:deploy": "prisma migrate deploy",
+    "db:validate": "prisma validate && prisma migrate diff --from-migrations prisma/migrations --to-schema-datamodel prisma/schema.prisma --shadow-database-url \"$SHADOW_DATABASE_URL\" --exit-code",
+    "dev:up": "docker compose up -d",
+    "dev:down": "docker compose down"
+  },
+  "dependencies": {
+    "@prisma/client": "^6.1.0",
+    "@sinclair/typebox": "^0.34.0",
+    "bullmq": "^5.34.0",
+    "fastify": "^5.2.0",
+    "ioredis": "^5.4.0",
+    "pino": "^9.5.0"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.17.0",
+    "@testcontainers/postgresql": "^10.16.0",
+    "@types/node": "^22.10.0",
+    "eslint": "^9.17.0",
+    "fast-check": "^3.23.0",
+    "prisma": "^6.1.0",
+    "tsx": "^4.19.0",
+    "typescript": "^5.7.0",
+    "typescript-eslint": "^8.18.0",
+    "vitest": "^3.2.7"
+  }
+}
