@@ -19,9 +19,10 @@
     "db:generate": "prisma generate",
     "db:migrate": "prisma migrate dev",
     "db:deploy": "prisma migrate deploy",
-    "db:validate": "prisma validate && prisma migrate diff --from-migrations prisma/migrations --to-schema-datamodel prisma/schema.prisma --shadow-database-url \"$SHADOW_DATABASE_URL\" --exit-code",
+    "db:validate": "prisma validate",
     "dev:up": "docker compose up -d",
-    "dev:down": "docker compose down"
+    "dev:down": "docker compose down",
+    "db:drift": "prisma migrate diff --from-schema-datasource prisma/schema.prisma --to-schema-datamodel prisma/schema.prisma --exit-code"
   },
   "dependencies": {
     "@prisma/client": "^6.1.0",
@@ -35,8 +36,10 @@
     "@eslint/js": "^9.17.0",
     "@testcontainers/postgresql": "^10.16.0",
     "@types/node": "^22.10.0",
+    "@types/pg": "^8.23.1",
     "eslint": "^9.17.0",
     "fast-check": "^3.23.0",
+    "pg": "^8.23.0",
     "prisma": "^6.1.0",
     "tsx": "^4.19.0",
     "typescript": "^5.7.0",

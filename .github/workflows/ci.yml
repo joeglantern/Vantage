@@ -44,8 +44,42 @@ jobs:
       # The double-pay property test is the specification (docs/09).
       - run: npm run test:property
 
+  migrations:
+    name: migration check
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:17-alpine
+        env:
+          POSTGRES_USER: vantage
+          POSTGRES_PASSWORD: vantage
+          POSTGRES_DB: vantage
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U vantage"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 20
+    env:
+      DATABASE_URL: postgresql://vantage:vantage@localhost:5432/vantage?schema=public
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+      - run: npm ci
+      - run: npx prisma generate
+      - run: npm run db:validate
+      # The migration must apply to an empty database and leave it matching
+      # schema.prisma. Drift means the hand-written constraint SQL and the
+      # Prisma model have parted company.
+      - run: npx prisma migrate deploy
+      - run: npm run db:drift
+
   integration:
-    name: integration · migrations
+    name: integration tests
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4

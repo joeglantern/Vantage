@@ -1,0 +1,360 @@
+// Vantage schema. The tables and columns come from docs/03-data-model.md.
+//
+// Prisma owns the table and column shape here. It cannot express check
+// constraints, partial indexes, triggers or row level security, so all of those
+// live in hand-written SQL appended to the migration. That SQL is not optional
+// decoration: the maker-checker rule, the anti-double-pay uniqueness, the
+// append-only guarantee and tenant isolation are all enforced there, and the
+// integration tests prove each one rejects the bad case.
+//
+// Money is always BIGINT minor units in a column ending _minor, paired with a
+// currency code. Timestamps end _at and are timestamptz.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider          = "postgresql"
+  url               = env("DATABASE_URL")
+  shadowDatabaseUrl = env("SHADOW_DATABASE_URL")
+}
+
+/// The tenant. Every other row hangs off this, and every query filters on it.
+model Organisation {
+  id            String   @id @default(uuid()) @db.Uuid
+  name          String
+  /// Data controller registration with the ODPC.
+  odpcRegNo     String?  @map("odpc_reg_no")
+  /// Seven years by default, which is a common donor requirement. Configuration,
+  /// not a hardcode: see docs/05 retention.
+  retentionDays Int      @default(2555) @map("retention_days")
+  createdAt     DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  memberships       Membership[]
+  payoutChannels    PayoutChannel[]
+  programmes        Programme[]
+  recipients        Recipient[]
+  payoutBatches     PayoutBatch[]
+  payoutItems       PayoutItem[]
+  gatewayMessages   GatewayMessage[]
+  ledgerEntries     LedgerEntry[]
+  auditEvents       AuditEvent[]
+  auditCheckpoints  AuditCheckpoint[]
+  recipientKeys     RecipientKey[]
+  reconciliationPacks ReconciliationPack[]
+
+  @@map("organisation")
+}
+
+model User {
+  id           String   @id @default(uuid()) @db.Uuid
+  email        String   @unique
+  /// Argon2id. See docs/02 authentication.
+  passwordHash String   @map("password_hash")
+  /// TOTP shared secret, field-level encrypted. Mandatory for approvers.
+  totpSecretEnc Bytes?  @map("totp_secret_enc")
+  mfaEnabled   Boolean  @default(false) @map("mfa_enabled")
+  createdAt    DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  memberships      Membership[]
+  preparedBatches  PayoutBatch[] @relation("BatchPreparedBy")
+  approvedBatches  PayoutBatch[] @relation("BatchApprovedBy")
+  auditEvents      AuditEvent[]
+  generatedPacks   ReconciliationPack[]
+
+  @@map("user")
+}
+
+/// A user's role within one organisation. Roles are in docs/05.
+model Membership {
+  id             String   @id @default(uuid()) @db.Uuid
+  organisationId String   @map("organisation_id") @db.Uuid
+  userId         String   @map("user_id") @db.Uuid
+  role           String
+  createdAt      DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  organisation Organisation @relation(fields: [organisationId], references: [id])
+  user         User         @relation(fields: [userId], references: [id])
+
+  @@unique([organisationId, userId])
+  @@map("membership")
+}
+
+/// The organisation's own M-Pesa configuration. The most sensitive table here.
+/// No plaintext secret ever lands in it: see docs/05 credential custody.
+model PayoutChannel {
+  id                    String    @id @default(uuid()) @db.Uuid
+  organisationId        String    @map("organisation_id") @db.Uuid
+  label                 String
+  kind                  String
+  shortcode             String
+  initiatorName         String    @map("initiator_name")
+  /// Envelope-encrypted credential payload.
+  credentialsCiphertext Bytes     @map("credentials_ciphertext")
+  /// Which master key wrapped it, so keys can rotate without downtime.
+  credentialsKeyId      String    @map("credentials_key_id")
+  /// High-entropy, per-channel, rotatable path segment for the callback URL.
+  callbackSecret        String    @map("callback_secret")
+  isActive              Boolean   @default(true) @map("is_active")
+  /// Set once a zero-value or minimal test transaction has succeeded.
+  verifiedAt            DateTime? @map("verified_at") @db.Timestamptz(6)
+  createdAt             DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  organisation  Organisation  @relation(fields: [organisationId], references: [id])
+  payoutBatches PayoutBatch[]
+
+  @@unique([id, organisationId])
+  @@map("payout_channel")
+}
+
+model Programme {
+  id             String   @id @default(uuid()) @db.Uuid
+  organisationId String   @map("organisation_id") @db.Uuid
+  name           String
+  createdAt      DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  organisation  Organisation  @relation(fields: [organisationId], references: [id])
+  payoutBatches PayoutBatch[]
+
+  @@unique([id, organisationId])
+  @@map("programme")
+}
+
+model Recipient {
+  id             String   @id @default(uuid()) @db.Uuid
+  organisationId String   @map("organisation_id") @db.Uuid
+  /// Normalised to 2547XXXXXXXX by src/domain/msisdn.ts before it gets here.
+  msisdn         String
+  fullName       String   @map("full_name")
+  /// Optional and encrypted. Collected only where the organisation's own policy
+  /// requires it: see docs/06 data minimisation.
+  nationalIdEnc  Bytes?   @map("national_id_enc")
+  /// The organisation's own participant ID.
+  externalRef    String?  @map("external_ref")
+  createdAt      DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  organisation Organisation  @relation(fields: [organisationId], references: [id])
+  key          RecipientKey?
+  payoutItems  PayoutItem[]
+
+  @@unique([organisationId, msisdn])
+  @@unique([id, organisationId])
+  @@index([organisationId, msisdn])
+  @@map("recipient")
+}
+
+/// The key that makes erasure possible without breaking the append-only tables.
+/// Erasure destroys the key, not the row: see docs/03 crypto-shredding.
+model RecipientKey {
+  recipientId    String    @id @map("recipient_id") @db.Uuid
+  organisationId String    @map("organisation_id") @db.Uuid
+  /// Data key, wrapped by the master key.
+  keyCiphertext  Bytes     @map("key_ciphertext")
+  keyId          String    @map("key_id")
+  /// Set on erasure. The row is kept so the shredding is itself auditable.
+  destroyedAt    DateTime? @map("destroyed_at") @db.Timestamptz(6)
+  createdAt      DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  recipient    Recipient    @relation(fields: [recipientId, organisationId], references: [id, organisationId])
+  organisation Organisation @relation(fields: [organisationId], references: [id])
+
+  @@unique([recipientId, organisationId])
+  @@map("recipient_key")
+}
+
+model PayoutBatch {
+  id              String    @id @default(uuid()) @db.Uuid
+  organisationId  String    @map("organisation_id") @db.Uuid
+  programmeId     String    @map("programme_id") @db.Uuid
+  payoutChannelId String    @map("payout_channel_id") @db.Uuid
+  /// Human handle, for example "YCIC-2026-03".
+  reference       String
+  status          String
+  currency        String    @default("KES") @db.Char(3)
+  preparedBy      String    @map("prepared_by") @db.Uuid
+  approvedBy      String?   @map("approved_by") @db.Uuid
+  approvedAt      DateTime? @map("approved_at") @db.Timestamptz(6)
+  /// Frozen at approval. The pack is generated against this, so a later edit to
+  /// a recipient's name cannot rewrite history.
+  snapshot        Json?     @db.JsonB
+  closedAt        DateTime? @map("closed_at") @db.Timestamptz(6)
+  createdAt       DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt       DateTime  @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  organisation  Organisation  @relation(fields: [organisationId], references: [id])
+  programme     Programme     @relation(fields: [programmeId, organisationId], references: [id, organisationId])
+  payoutChannel PayoutChannel @relation(fields: [payoutChannelId, organisationId], references: [id, organisationId])
+  preparer      User          @relation("BatchPreparedBy", fields: [preparedBy], references: [id])
+  approver      User?         @relation("BatchApprovedBy", fields: [approvedBy], references: [id])
+
+  items               PayoutItem[]
+  ledgerEntries       LedgerEntry[]
+  reconciliationPacks ReconciliationPack[]
+
+  @@unique([organisationId, reference])
+  @@unique([id, organisationId])
+  @@map("payout_batch")
+}
+
+model PayoutItem {
+  id             String @id @default(uuid()) @db.Uuid
+  organisationId String @map("organisation_id") @db.Uuid
+  batchId        String @map("batch_id") @db.Uuid
+  recipientId    String @map("recipient_id") @db.Uuid
+  amountMinor    BigInt @map("amount_minor")
+  status         String
+
+  /// Generated ONCE at approval and reused on every retry. Safaricom
+  /// deduplicates on this, so a genuine duplicate request is rejected rather
+  /// than paid. Never regenerated: see docs/04 rule 1.
+  originatorConversationId String    @map("originator_conversation_id") @db.Uuid
+  /// Returned by Daraja when a request is accepted.
+  conversationId           String?   @map("conversation_id")
+  /// The donor-facing proof.
+  mpesaReceipt             String?   @map("mpesa_receipt")
+  /// The name M-Pesa says owns the line that was paid. Compared against the
+  /// intended name in the pack; a recurring mismatch is a fraud signal.
+  registeredName           String?   @map("registered_name")
+  failureCode              String?   @map("failure_code")
+  failureReason            String?   @map("failure_reason")
+  sentAt                   DateTime? @map("sent_at") @db.Timestamptz(6)
+  settledAt                DateTime? @map("settled_at") @db.Timestamptz(6)
+  attemptCount             Int       @default(0) @map("attempt_count")
+  createdAt                DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt                DateTime  @default(now()) @map("updated_at") @db.Timestamptz(6)
+
+  organisation Organisation @relation(fields: [organisationId], references: [id])
+  batch        PayoutBatch  @relation(fields: [batchId, organisationId], references: [id, organisationId])
+  recipient    Recipient    @relation(fields: [recipientId, organisationId], references: [id, organisationId])
+
+  gatewayMessages GatewayMessage[]
+  ledgerEntries   LedgerEntry[]
+
+  @@unique([originatorConversationId])
+  @@unique([batchId, recipientId])
+  @@unique([id, organisationId])
+  @@index([batchId, status])
+  @@index([conversationId])
+  @@map("payout_item")
+}
+
+/// Every byte exchanged with Daraja, in both directions. Append-only: this is
+/// what you show an auditor, and what you read at 2am when a payment is
+/// disputed. The payload is encrypted under the recipient's data key so that
+/// erasure can shred it without deleting the row.
+model GatewayMessage {
+  id             String   @id @default(uuid()) @db.Uuid
+  organisationId String   @map("organisation_id") @db.Uuid
+  payoutItemId   String?  @map("payout_item_id") @db.Uuid
+  /// Whose key protects this payload.
+  recipientId    String?  @map("recipient_id") @db.Uuid
+  direction      String
+  /// b2c_request | result_callback | status_query and so on.
+  kind           String
+  httpStatus     Int?     @map("http_status")
+  payloadEnc     Bytes    @map("payload_enc")
+  receivedAt     DateTime @default(now()) @map("received_at") @db.Timestamptz(6)
+
+  organisation Organisation @relation(fields: [organisationId], references: [id])
+  payoutItem   PayoutItem?  @relation(fields: [payoutItemId, organisationId], references: [id, organisationId])
+
+  @@index([payoutItemId, receivedAt])
+  @@map("gateway_message")
+}
+
+/// Immutable financial record. Corrections are new compensating rows, never
+/// updates.
+model LedgerEntry {
+  id             String   @id @default(uuid()) @db.Uuid
+  organisationId String   @map("organisation_id") @db.Uuid
+  batchId        String   @map("batch_id") @db.Uuid
+  payoutItemId   String?  @map("payout_item_id") @db.Uuid
+  /// obligation | disbursed | reversed | failed
+  entryType      String   @map("entry_type")
+  amountMinor    BigInt   @map("amount_minor")
+  occurredAt     DateTime @default(now()) @map("occurred_at") @db.Timestamptz(6)
+
+  organisation Organisation @relation(fields: [organisationId], references: [id])
+  batch        PayoutBatch  @relation(fields: [batchId, organisationId], references: [id, organisationId])
+  payoutItem   PayoutItem?  @relation(fields: [payoutItemId, organisationId], references: [id, organisationId])
+
+  @@index([batchId, entryType])
+  @@map("ledger_entry")
+}
+
+/// Hash-chained and tamper-evident. One chain per organisation, each starting at
+/// chain_seq 1, so one tenant's retention deletion cannot break another's
+/// verification. metadata holds references only, never raw personal data.
+model AuditEvent {
+  id             BigInt   @id @default(autoincrement())
+  organisationId String   @map("organisation_id") @db.Uuid
+  /// Position in THIS organisation's chain, from 1.
+  chainSeq       BigInt   @map("chain_seq")
+  actorUserId    String?  @map("actor_user_id") @db.Uuid
+  /// batch.approved, item.confirmed and so on.
+  action         String
+  subjectType    String   @map("subject_type")
+  subjectId      String   @map("subject_id") @db.Uuid
+  metadata       Json     @default("{}") @db.JsonB
+  correlationId  String?  @map("correlation_id") @db.Uuid
+  occurredAt     DateTime @default(now()) @map("occurred_at") @db.Timestamptz(6)
+  /// Previous event of the same organisation.
+  prevHash       Bytes?   @map("prev_hash")
+  /// H(prev_hash || canonical(row))
+  hash           Bytes
+
+  organisation Organisation @relation(fields: [organisationId], references: [id])
+  actor        User?        @relation(fields: [actorUserId], references: [id])
+
+  @@unique([organisationId, chainSeq])
+  @@index([organisationId, occurredAt(sort: Desc)])
+  @@map("audit_event")
+}
+
+/// Verifying from genesis is fine in year one and painful in year seven. A daily
+/// checkpoint per organisation makes routine verification incremental.
+model AuditCheckpoint {
+  id             String   @id @default(uuid()) @db.Uuid
+  organisationId String   @map("organisation_id") @db.Uuid
+  /// The event this checkpoint covers up to.
+  chainSeq       BigInt   @map("chain_seq")
+  hash           Bytes
+  createdAt      DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  organisation Organisation @relation(fields: [organisationId], references: [id])
+
+  @@unique([organisationId, chainSeq])
+  @@map("audit_checkpoint")
+}
+
+/// Immutable once generated. Regeneration creates a new version; old versions
+/// are never overwritten. See docs/07.
+///
+/// NOTE: docs/03 names this table in the entity diagram but does not specify its
+/// columns. These are derived from what docs/07 requires a pack to carry.
+model ReconciliationPack {
+  id             String    @id @default(uuid()) @db.Uuid
+  organisationId String    @map("organisation_id") @db.Uuid
+  batchId        String    @map("batch_id") @db.Uuid
+  /// Monotonic per batch. A re-render after an erasure supersedes, never edits.
+  version        Int
+  /// Object store key. The bytes live there, encrypted at rest.
+  objectKey      String    @map("object_key")
+  /// SHA-256 of the pack's canonical JSON representation.
+  contentHash    Bytes     @map("content_hash")
+  /// Head hash of the organisation's audit chain when this pack was generated.
+  auditHeadHash  Bytes     @map("audit_head_hash")
+  auditHeadSeq   BigInt    @map("audit_head_seq")
+  generatedBy    String    @map("generated_by") @db.Uuid
+  generatedAt    DateTime  @default(now()) @map("generated_at") @db.Timestamptz(6)
+  /// Set when a later version replaces this one.
+  supersededAt   DateTime? @map("superseded_at") @db.Timestamptz(6)
+
+  organisation Organisation @relation(fields: [organisationId], references: [id])
+  batch        PayoutBatch  @relation(fields: [batchId, organisationId], references: [id, organisationId])
+  generator    User         @relation(fields: [generatedBy], references: [id])
+
+  @@unique([batchId, version])
+  @@map("reconciliation_pack")
+}
