@@ -29,7 +29,7 @@ Run every row through the same rules and classify each as **ok**, **warning** or
 
 | Check | Severity | Rationale |
 | --- | --- | --- |
-| MSISDN normalises to a valid Kenyan mobile | Blocking | `0712…`, `+254712…`, `254712…`, `7 12…` all normalise to `2547XXXXXXXX` |
+| MSISDN normalises to a valid Kenyan mobile | Blocking | `0712…`, `+254712…`, `254712…`, `7 12…` all normalise to `2547XXXXXXXX`. The `01xx` block normalises the same way to `2541XXXXXXXX` |
 | Amount is a positive whole shilling | Blocking | M-Pesa cannot move cents |
 | Recipient appears once in the batch | Blocking | The classic double-pay source |
 | Amount within per-item policy limit | Blocking | Catches the misplaced-decimal disaster |

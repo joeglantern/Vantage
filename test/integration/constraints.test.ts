@@ -294,3 +294,135 @@ describe('the audit chain', () => {
     });
   });
 });
+
+describe('policy limits', () => {
+  it('refuses a zero or negative per-item limit', async () => {
+    await inRolledBackTransaction(db.pool, async (client) => {
+      // A limit of zero would block every payout, which is not a safer default,
+      // it is an outage dressed up as a control.
+      const error = await expectRejection(
+        client.query(
+          `INSERT INTO organisation (id, name, per_item_limit_minor)
+           VALUES (gen_random_uuid(), 'Broken', 0)`,
+        ),
+      );
+      expect(error.constraint).toBe('organisation_per_item_limit_positive_check');
+    });
+  });
+
+  it('refuses a batch limit below the item limit', async () => {
+    await inRolledBackTransaction(db.pool, async (client) => {
+      const error = await expectRejection(
+        client.query(
+          `INSERT INTO organisation (id, name, per_item_limit_minor, per_batch_limit_minor)
+           VALUES (gen_random_uuid(), 'Incoherent', 500000, 100000)`,
+        ),
+      );
+      expect(error.constraint).toBe('organisation_limits_coherent_check');
+    });
+  });
+
+  it('refuses a limit with cents in it', async () => {
+    await inRolledBackTransaction(db.pool, async (client) => {
+      const error = await expectRejection(
+        client.query(
+          `INSERT INTO organisation (id, name, per_item_limit_minor)
+           VALUES (gen_random_uuid(), 'Fractional', 150050)`,
+        ),
+      );
+      expect(error.constraint).toBe('organisation_limits_whole_shilling_check');
+    });
+  });
+
+  it('refuses a nonsensical deviation threshold', async () => {
+    await inRolledBackTransaction(db.pool, async (client) => {
+      const error = await expectRejection(
+        client.query(
+          `INSERT INTO organisation (id, name, deviation_warning_bps)
+           VALUES (gen_random_uuid(), 'Never warns', 0)`,
+        ),
+      );
+      expect(error.constraint).toBe('organisation_deviation_bps_check');
+    });
+  });
+
+  it('defaults to limits that fail closed rather than open', async () => {
+    await inRolledBackTransaction(db.pool, async (client) => {
+      const row = await client.query<{
+        per_item_limit_minor: string;
+        per_batch_limit_minor: string;
+        deviation_warning_bps: number;
+      }>(
+        `INSERT INTO organisation (id, name) VALUES (gen_random_uuid(), 'Fresh')
+         RETURNING per_item_limit_minor, per_batch_limit_minor, deviation_warning_bps`,
+      );
+      // KES 20,000 per item and KES 500,000 per batch. Low enough that a
+      // misplaced decimal hits the wall before it hits a recipient.
+      expect(row.rows[0]?.per_item_limit_minor).toBe('2000000');
+      expect(row.rows[0]?.per_batch_limit_minor).toBe('50000000');
+      expect(row.rows[0]?.deviation_warning_bps).toBe(5000);
+    });
+  });
+
+  it('refuses an approved batch that did not freeze its limits', async () => {
+    await inRolledBackTransaction(db.pool, async (client) => {
+      // docs/07 prints the limits in force in the control attestation. An
+      // approved batch that never recorded them leaves the pack with nothing
+      // truthful to say.
+      // Raw insert on purpose. The helper freezes the limits the way the real
+      // approval transaction will, so it cannot produce this bad state.
+      const error = await expectRejection(
+        client.query(
+          `INSERT INTO payout_batch
+             (id, organisation_id, programme_id, payout_channel_id, reference, status,
+              prepared_by, approved_by, approved_at)
+           VALUES (gen_random_uuid(), $1, $2, $3, 'NOLIMITS', 'approved', $4, $5, now())`,
+          [
+            fixtures.organisationId,
+            fixtures.programmeId,
+            fixtures.channelId,
+            fixtures.preparerId,
+            fixtures.approverId,
+          ],
+        ),
+      );
+      expect(error.constraint).toBe('payout_batch_limits_frozen_at_approval_check');
+    });
+  });
+
+  it('accepts an approved batch that froze them', async () => {
+    await inRolledBackTransaction(db.pool, async (client) => {
+      const result = await client.query<{ id: string }>(
+        `INSERT INTO payout_batch
+           (id, organisation_id, programme_id, payout_channel_id, reference, status,
+            prepared_by, approved_by, approved_at, per_item_limit_minor, per_batch_limit_minor)
+         VALUES (gen_random_uuid(), $1, $2, $3, 'FROZEN', 'approved', $4, $5, now(),
+                 2000000, 50000000)
+         RETURNING id`,
+        [
+          fixtures.organisationId,
+          fixtures.programmeId,
+          fixtures.channelId,
+          fixtures.preparerId,
+          fixtures.approverId,
+        ],
+      );
+      expect(result.rows[0]?.id).toMatch(/^[0-9a-f-]{36}$/);
+    });
+  });
+
+  it('refuses only one half of the pair', async () => {
+    await inRolledBackTransaction(db.pool, async (client) => {
+      const error = await expectRejection(
+        client.query(
+          `INSERT INTO payout_batch
+             (id, organisation_id, programme_id, payout_channel_id, reference, status,
+              prepared_by, per_item_limit_minor)
+           VALUES (gen_random_uuid(), $1, $2, $3, 'HALFLIMIT', 'draft', $4, 2000000)`,
+          [fixtures.organisationId, fixtures.programmeId, fixtures.channelId, fixtures.preparerId],
+        ),
+      );
+      expect(error.constraint).toBe('payout_batch_limits_paired_check');
+    });
+  });
+});

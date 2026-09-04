@@ -6,13 +6,29 @@
  * the question. Every assertion here is about what Postgres refuses to do.
  */
 import { PostgreSqlContainer, type StartedPostgreSqlContainer } from '@testcontainers/postgresql';
-import { readFileSync } from 'node:fs';
+import { readdirSync, readFileSync } from 'node:fs';
+import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import pg from 'pg';
 
-const MIGRATION_PATH = fileURLToPath(
-  new URL('../../../prisma/migrations/20260905000000_init/migration.sql', import.meta.url),
-);
+const MIGRATIONS_DIR = fileURLToPath(new URL('../../../prisma/migrations', import.meta.url));
+
+/**
+ * Every migration, in the order prisma migrate deploy would apply them.
+ *
+ * Reading the directory rather than naming a file matters: a hardcoded path
+ * silently stops covering the schema the moment somebody adds a migration, and
+ * the tests keep passing against a database that no longer resembles
+ * production. Timestamp-prefixed directory names sort lexicographically into
+ * chronological order, which is the whole point of the naming convention.
+ */
+function migrationsInOrder(): string[] {
+  return readdirSync(MIGRATIONS_DIR, { withFileTypes: true })
+    .filter((entry) => entry.isDirectory())
+    .map((entry) => entry.name)
+    .sort()
+    .map((name) => readFileSync(join(MIGRATIONS_DIR, name, 'migration.sql'), 'utf8'));
+}
 
 /** A checked-out connection. Named so tests do not have to unwrap pg overloads. */
 export type DbClient = pg.PoolClient;
@@ -33,8 +49,9 @@ export async function startTestDatabase(): Promise<TestDatabase> {
   const url = container.getConnectionUri();
   const pool = new pg.Pool({ connectionString: url, max: 8 });
 
-  const migration = readFileSync(MIGRATION_PATH, 'utf8');
-  await pool.query(migration);
+  for (const migration of migrationsInOrder()) {
+    await pool.query(migration);
+  }
 
   return {
     pool,
@@ -163,9 +180,14 @@ export async function insertBatch(
   const result = await client.query<{ id: string }>(
     `INSERT INTO payout_batch
        (id, organisation_id, programme_id, payout_channel_id, reference, status,
-        prepared_by, approved_by, approved_at)
+        prepared_by, approved_by, approved_at,
+        per_item_limit_minor, per_batch_limit_minor)
      VALUES (gen_random_uuid(), $1, $2, $3, $4, $5, $6, $7,
-             CASE WHEN $7::uuid IS NULL THEN NULL ELSE now() END)
+             CASE WHEN $7::uuid IS NULL THEN NULL ELSE now() END,
+             -- Frozen at approval, copied from the organisation, exactly as the
+             -- real approval transaction will do it.
+             CASE WHEN $7::uuid IS NULL THEN NULL ELSE 2000000 END,
+             CASE WHEN $7::uuid IS NULL THEN NULL ELSE 50000000 END)
      RETURNING id`,
     [
       fixtures.organisationId,

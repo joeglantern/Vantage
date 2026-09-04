@@ -1,7 +1,8 @@
 /**
  * MSISDN normalisation, per the first validation rule in docs/04:
  *
- *   `0712…`, `+254712…`, `254712…`, `7 12…` all normalise to `2547XXXXXXXX`.
+ *   `0712…`, `+254712…`, `254712…`, `7 12…` all normalise to `2547XXXXXXXX`,
+ *   and the `01xx` range normalises the same way to `2541XXXXXXXX`.
  *
  * A phone number is the payment instrument here. Getting this wrong sends money
  * to a stranger, so the rule is strict: normalise what is unambiguous, reject
@@ -12,16 +13,19 @@ import { err, type Result } from './result.js';
 export const KENYA_COUNTRY_CODE = '254';
 
 /**
- * The mobile prefixes accepted after the country code, as specified in docs/04.
+ * The mobile prefixes accepted after the country code.
  *
- * NOTE: docs/04 gives only `7`. Kenyan mobile numbering also includes `1`
- * (011x, 010x) on Safaricom and Airtel, which this list would reject. That is
- * a documented question for the spec owner, not something to widen here. See
- * the milestone report. Widening it is a one-line change to this constant.
+ * Kenyan mobile numbering uses two ranges. `07xx` is the original block, and
+ * `01xx` is the later allocation that Safaricom and Airtel now issue from.
+ * Rejecting `01xx` would refuse real, current numbers, which at a stipend cycle
+ * means a participant silently drops out of a payout run.
+ *
+ * Both ranges carry nine national significant digits, so the only thing that
+ * differs is the leading digit.
  */
-export const KENYAN_MOBILE_PREFIXES = ['7'] as const;
+export const KENYAN_MOBILE_PREFIXES = ['7', '1'] as const;
 
-/** Digits following the prefix. `7` + 8 digits = 9 subscriber digits. */
+/** Digits after the leading prefix digit. 1 + 8 = 9 national significant digits. */
 const SUBSCRIBER_DIGITS = 8;
 
 declare const msisdnBrand: unique symbol;

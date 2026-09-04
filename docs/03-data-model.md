@@ -25,12 +25,34 @@ erDiagram
 The tenant. Every other row hangs off this, and every query filters on it.
 
 ```sql
-id              uuid primary key
-name            text not null
-odpc_reg_no     text                 -- data controller registration
-retention_days  int not null default 2555   -- 7y, typical donor requirement
-created_at      timestamptz not null default now()
+id                    uuid primary key
+name                  text not null
+odpc_reg_no           text                 -- data controller registration
+retention_days        int not null default 2555   -- 7y, typical donor requirement
+per_item_limit_minor  bigint not null default 2000000     -- KES 20,000
+per_batch_limit_minor bigint not null default 50000000    -- KES 500,000
+deviation_warning_bps int not null default 5000           -- 50%, in basis points
+created_at            timestamptz not null default now()
+
+check (per_item_limit_minor > 0 and per_batch_limit_minor > 0)
+check (per_batch_limit_minor >= per_item_limit_minor)
+check (per_item_limit_minor % 100 = 0 and per_batch_limit_minor % 100 = 0)
 ```
+
+The limits are the control that catches a misplaced decimal, which
+[Payout lifecycle](04-payout-lifecycle.md) calls the single most expensive
+mistake in this domain. They are set by an admin, who under
+[Security](05-security.md) roles can neither prepare nor approve a batch, so the
+person who raises a limit is never the person who benefits from it.
+
+**The defaults are deliberately low.** A limit that fails closed is an
+annoyance somebody notices immediately. One that fails open is ten times the
+intended amount reaching a recipient who has no obligation to give it back.
+Configure them explicitly for each organisation before the first real batch, as
+the pre-launch checklist in [Security](05-security.md) requires.
+
+The deviation threshold is stored in basis points rather than as a fraction so
+that no float ever comes near an amount.
 
 ### `payout_channel`
 
@@ -59,7 +81,7 @@ No plaintext secret ever lands in this table. See
 ```sql
 id                uuid primary key
 organisation_id   uuid not null references organisation
-msisdn            text not null            -- E.164, normalised: 2547XXXXXXXX
+msisdn            text not null            -- E.164, normalised: 2547XXXXXXXX or 2541XXXXXXXX
 full_name         text not null
 national_id_enc   bytea                    -- optional, field-level encrypted
 external_ref      text                     -- the org's own participant ID
@@ -86,11 +108,21 @@ prepared_by        uuid not null references "user"
 approved_by        uuid references "user"
 approved_at        timestamptz
 snapshot           jsonb                    -- frozen at approval
+per_item_limit_minor  bigint                -- limits in force at approval
+per_batch_limit_minor bigint
 closed_at          timestamptz
 
 unique (organisation_id, reference)
 check (approved_by is null or approved_by <> prepared_by)   -- maker-checker
+check (approved_by is null or per_item_limit_minor is not null)
 ```
+
+The limits are copied onto the batch at approval, not read live from the
+organisation when a pack is rendered. An auditor reading a pack from eight
+months ago needs the limit that actually applied at the time, not whatever it
+has been changed to since. [Reconciliation and audit](07-reconciliation-and-audit.md)
+prints both in the control attestation, and a constraint stops an approved batch
+existing without them.
 
 That last constraint is the maker-checker rule, enforced by the **database**, not
 by application code. Application checks get bypassed; constraints do not.

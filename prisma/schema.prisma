@@ -29,6 +29,22 @@ model Organisation {
   /// Seven years by default, which is a common donor requirement. Configuration,
   /// not a hardcode: see docs/05 retention.
   retentionDays Int      @default(2555) @map("retention_days")
+
+  /// The limits that catch a misplaced decimal, which docs/04 calls the single
+  /// most expensive mistake in this domain. Set once per organisation by an
+  /// admin, who under docs/05 roles can neither prepare nor approve a batch.
+  ///
+  /// The defaults are deliberately low. A limit that fails closed is an
+  /// annoyance; one that fails open is a payout of ten times the intended
+  /// amount to somebody with no obligation to give it back.
+  perItemLimitMinor  BigInt @default(2000000) @map("per_item_limit_minor")
+  perBatchLimitMinor BigInt @default(50000000) @map("per_batch_limit_minor")
+
+  /// Warn when an amount deviates from a recipient's usual by more than this,
+  /// in basis points. 5000 is the 50% rule in docs/04. Basis points rather than
+  /// a fraction because no float goes anywhere near an amount.
+  deviationWarningBps Int @default(5000) @map("deviation_warning_bps")
+
   createdAt     DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
 
   memberships       Membership[]
@@ -178,6 +194,13 @@ model PayoutBatch {
   /// Frozen at approval. The pack is generated against this, so a later edit to
   /// a recipient's name cannot rewrite history.
   snapshot        Json?     @db.JsonB
+
+  /// The limits that were in force when this batch was approved, copied from
+  /// the organisation at that moment. docs/07 prints these in the control
+  /// attestation, and an auditor reading a pack from eight months ago needs the
+  /// limit that actually applied then, not whatever it was changed to since.
+  perItemLimitMinor  BigInt? @map("per_item_limit_minor")
+  perBatchLimitMinor BigInt? @map("per_batch_limit_minor")
   closedAt        DateTime? @map("closed_at") @db.Timestamptz(6)
   createdAt       DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
   updatedAt       DateTime  @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
