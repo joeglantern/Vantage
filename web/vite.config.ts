@@ -15,6 +15,18 @@ export default defineConfig({
       '@web': r('./src'),
     },
   },
-  server: { port: 5173 },
+  server: {
+    port: 5173,
+    // The interface talks to the API on a same-origin path so there is no CORS
+    // to configure and no base URL baked into the bundle. In production the two
+    // sit behind one origin anyway, so development matching that avoids a class
+    // of problem that only ever shows up after deploy.
+    proxy: {
+      '/api': {
+        target: 'http://127.0.0.1:3000',
+        changeOrigin: false,
+      },
+    },
+  },
   build: { outDir: r('../dist/web'), emptyOutDir: true },
 });

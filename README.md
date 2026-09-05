@@ -29,16 +29,43 @@ boundary, not an implementation detail. See [Compliance](docs/06-compliance.md).
 
 ## Running it
 
-Node 22 or newer.
+Node 22 or newer, and Docker for Postgres and Redis.
 
 ```sh
 npm install
-npm run web:dev
+cp .env.example .env          # then fill in VANTAGE_MASTER_KEY, see below
+npm run dev:up                # postgres on 5433, redis on 6380
+npm run db:deploy             # apply migrations
+npm run db:seed               # one organisation with some history
 ```
 
-That serves the interface at http://localhost:5173. There is no API yet, so it
-runs entirely in the browser and nothing is saved: refresh and your upload is
-gone.
+The seed prints an organisation id. Put it in `.env` as
+`VANTAGE_ORGANISATION_ID`: there is no sign-in yet, so the server is told which
+single organisation it serves (docs/08 phase 1 is explicitly one customer with
+hardcoded config).
+
+`VANTAGE_MASTER_KEY` has no default and the process refuses to start without
+one, because a missing key found at boot costs seconds and the same key found
+missing mid-disbursement leaves payments in `unknown`. Generate a local one:
+
+```sh
+node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
+```
+
+Then, in two terminals:
+
+```sh
+npm run dev                   # api on 3000
+npm run web:dev               # interface on 5173, proxying /api to 3000
+```
+
+`GET /api/health` is liveness, `GET /api/ready` also checks the database.
+
+The Batches screen reads from Postgres. Every query runs in a transaction as
+the least privilege `vantage_app` role with the organisation set, so row level
+security does the tenant filtering rather than a `WHERE` clause somebody can
+forget. The import flow is still browser-only and saves nothing: upload, review
+and correction all work, but a refresh loses them.
 
 One path through it is real rather than a mock. Go to Batches, then New batch,
 and drop a CSV on it. The file is parsed in the browser, the validation rules in
@@ -78,9 +105,10 @@ guarantees cannot be tested honestly against a mock.
 
 ## Status
 
-The domain layer, the database schema and the interface exist. **There is no
-server**: no API, no M-Pesa integration, no persistence. See
-[Roadmap](docs/08-roadmap.md) for what Phase 1 still needs.
+The domain layer, the database schema, the interface, and the beginnings of the
+server exist. Reading batches is real and persisted. **Still missing: sign-in
+and the maker-checker roles, writing a batch through the API, and any M-Pesa
+integration at all.** See [Roadmap](docs/08-roadmap.md) for what Phase 1 needs.
 
 **Phase 0 (validation) is not complete**, and it gates real money moving rather
 than gating code. See [Roadmap](docs/08-roadmap.md#phase-0-validation-gate).

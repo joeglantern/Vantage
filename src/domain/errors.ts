@@ -67,3 +67,17 @@ export class IndeterminateError extends Error {
     super(message);
   }
 }
+
+/**
+ * The process is misconfigured and must not start.
+ *
+ * Separate from ValidationError because the audience is different: nobody using
+ * the product can act on this, and it must never reach an HTTP response. It is
+ * for whoever is deploying, and it is fatal by design (docs/09).
+ */
+export class ConfigError extends Error {
+  override readonly name = 'ConfigError';
+  constructor(message: string) {
+    super(message);
+  }
+}
