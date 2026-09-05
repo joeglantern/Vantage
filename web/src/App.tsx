@@ -12,8 +12,10 @@
  */
 import { useEffect, useState } from 'react';
 import { AppShell, type NavItem } from '@web/components/AppShell';
+import { Approval, APPROVER_USER, VIEWER_USER, type ApprovalVariant } from '@web/screens/Approval';
 import { Batches, type BatchesVariant } from '@web/screens/Batches';
 import { Import, type ImportVariant } from '@web/screens/Import';
+import { Queue, type QueueVariant } from '@web/screens/Queue';
 import { Recipients, type RecipientsVariant } from '@web/screens/Recipients';
 import { Settings, type SettingsVariant } from '@web/screens/Settings';
 import { SignIn, type SignInVariant } from '@web/screens/SignIn';
@@ -25,6 +27,8 @@ import './styles/devbar.css';
 const SCREENS = {
   batches: ['populated', 'empty', 'filtered'],
   import: ['waiting', 'parsing', 'preview', 'unreadable', 'columns', 'emptyfile', 'large'],
+  queue: ['blocking', 'warnings', 'acknowledged', 'clear', 'validating'],
+  approval: ['ready', 'challenge', 'failed', 'approving', 'approved', 'preparer', 'norole'],
   recipients: ['list', 'detail', 'erase'],
   settings: ['default', 'replace'],
   signin: ['default', 'invalid', 'locked', 'totp', 'totpwrong'],
@@ -72,6 +76,10 @@ export function App() {
         return <Batches variant={variant as BatchesVariant} />;
       case 'import':
         return <Import variant={variant as ImportVariant} />;
+      case 'queue':
+        return <Queue key={variant} variant={variant as QueueVariant} />;
+      case 'approval':
+        return <Approval key={variant} variant={variant as ApprovalVariant} />;
       case 'recipients':
         return <Recipients key={variant} variant={variant as RecipientsVariant} />;
       case 'settings':
@@ -84,6 +92,19 @@ export function App() {
   const activeNav: NavItem =
     screen === 'recipients' ? 'Recipients' : screen === 'settings' ? 'Settings' : 'Batches';
 
+  // Approval is seen by an approver, except in the two blocked states, where
+  // the point is who is looking: the preparer, or somebody without the role.
+  const user =
+    screen === 'settings'
+      ? ADMIN_USER
+      : screen === 'approval'
+        ? variant === 'preparer'
+          ? CURRENT_USER
+          : variant === 'norole'
+            ? VIEWER_USER
+            : APPROVER_USER
+        : CURRENT_USER;
+
   return (
     <>
       {screen === 'signin' ? (
@@ -92,7 +113,7 @@ export function App() {
         <AppShell
           active={activeNav}
           onNavigate={navigate}
-          user={screen === 'settings' ? ADMIN_USER : CURRENT_USER}
+          user={user}
         >
           {body}
         </AppShell>

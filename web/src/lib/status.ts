@@ -12,6 +12,7 @@
  */
 import { ITEM_STATUSES, type ItemStatus } from '@domain/payout-item';
 import { BATCH_STATUSES, type BatchStatus } from '@domain/payout-batch';
+import type { Severity } from '@domain/validation';
 
 export type Tone = 'pending' | 'progress' | 'ok' | 'warn' | 'fail' | 'unresolved';
 
@@ -42,6 +43,21 @@ const BATCH_TREATMENTS: Readonly<Record<BatchStatus, Treatment>> = {
   closed: { tone: 'ok', label: 'Closed' },
   cancelled: { tone: 'fail', label: 'Cancelled' },
 };
+
+/**
+ * A finding's severity, on the exception queue. Blocking stops approval and
+ * borrows the failure hue; a warning is accepted by a named person and borrows
+ * the warning hue. Keyed by the domain type, so a third severity is a compile
+ * error here before it is a blank mark on a row.
+ */
+const SEVERITY_TREATMENTS: Readonly<Record<Severity, Treatment>> = {
+  blocking: { tone: 'fail', label: 'Must fix' },
+  warning: { tone: 'warn', label: 'Warning' },
+};
+
+export function severityTreatment(severity: Severity): Treatment {
+  return SEVERITY_TREATMENTS[severity];
+}
 
 export function itemTreatment(status: ItemStatus): Treatment {
   return ITEM_TREATMENTS[status];

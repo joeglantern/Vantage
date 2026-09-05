@@ -1,0 +1,330 @@
+/* The exception queue. Dense on purpose: a programme officer reads 300 rows here. */
+
+.q-validating,
+.q-submitted {
+  padding: 16px 20px;
+}
+
+.q-validating h2,
+.q-submitted h2 {
+  font-size: 15px;
+  line-height: 22px;
+  font-weight: 600;
+}
+
+.q-validating p,
+.q-submitted p {
+  margin-top: 4px;
+  font-size: 13px;
+  line-height: 20px;
+  max-width: 720px;
+}
+
+.q-validating .progress {
+  margin: 12px 0 8px;
+}
+
+.q-submitted {
+  border-left: 3px solid var(--okT);
+}
+
+/* --- error summary, GOV.UK pattern --------------------------------------- */
+
+.q-summary {
+  background: var(--surface);
+  border: 2px solid var(--b2);
+  border-radius: 4px;
+  padding: 14px 20px 16px;
+}
+
+.q-summary-fail {
+  border-color: var(--failT);
+}
+
+.q-summary-warn {
+  border-color: var(--warnT);
+}
+
+.q-summary-ok {
+  border-color: var(--okT);
+}
+
+.q-summary h2 {
+  font-size: 15px;
+  line-height: 22px;
+  font-weight: 600;
+}
+
+.q-summary-batch {
+  margin-top: 8px;
+  font-size: 13px;
+  line-height: 20px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.q-summary-list {
+  margin: 8px 0 0;
+  padding-left: 20px;
+  font-size: 13px;
+  line-height: 20px;
+  columns: 2;
+  column-gap: 32px;
+}
+
+.q-summary-list li {
+  break-inside: avoid;
+  padding: 1px 0;
+}
+
+.q-summary .hint {
+  margin-top: 8px;
+}
+
+/* --- the rows ------------------------------------------------------------ */
+
+.q-row {
+  grid-template-columns: 40px 90px minmax(0, 1fr) 130px 120px 110px 210px;
+  padding-left: 16px;
+  padding-right: 16px;
+}
+
+.q-line {
+  border-bottom: 1px solid var(--b1);
+  border-left: 3px solid transparent;
+}
+
+.q-line:last-child {
+  border-bottom: 0;
+}
+
+.q-line .row {
+  border-bottom: 0;
+}
+
+.q-line-blocking {
+  border-left-color: var(--failT);
+}
+
+.q-line-warning {
+  border-left-color: var(--warnT);
+}
+
+.q-line-clean {
+  border-left-color: transparent;
+}
+
+.q-line:focus {
+  outline: 2px solid var(--accent);
+  outline-offset: -2px;
+}
+
+.q-bad {
+  color: var(--failT);
+}
+
+.q-actions {
+  display: flex;
+  gap: 6px;
+  justify-content: flex-end;
+}
+
+.q-inline-confirm {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+}
+
+/* Findings under a row. One line per finding; a row may carry three. */
+
+.q-findings {
+  list-style: none;
+  margin: 0;
+  padding: 0 16px 8px 56px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.q-finding {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  line-height: 20px;
+  min-height: 28px;
+}
+
+.q-finding-text {
+  flex: 1;
+  min-width: 0;
+}
+
+.q-finding-severity {
+  font-weight: 500;
+  margin-right: 6px;
+}
+
+.q-finding-blocking .q-finding-severity {
+  color: var(--failT);
+}
+
+.q-finding-warning .q-finding-severity {
+  color: var(--warnT);
+}
+
+.q-finding-acked .q-finding-text {
+  color: var(--text2);
+}
+
+.q-finding-mark {
+  flex: none;
+  width: 8px;
+  height: 8px;
+  display: inline-block;
+}
+
+.q-finding-mark-blocking {
+  background: var(--failT);
+}
+
+.q-finding-mark-warning {
+  background: var(--warnT);
+  transform: rotate(45deg);
+}
+
+.q-ack {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--okT);
+  font-size: 12px;
+  line-height: 18px;
+  white-space: nowrap;
+}
+
+.q-edited {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  line-height: 18px;
+  color: var(--text2);
+  min-height: 24px;
+}
+
+.q-edited-mark {
+  flex: none;
+  width: 8px;
+  height: 8px;
+  border: 1.5px solid var(--text2);
+  display: inline-block;
+}
+
+/* Clean rows collapse into one line that states the count. */
+
+.q-clean-head {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  padding: 9px 16px 9px 19px;
+  border-bottom: 1px solid var(--b1);
+  font-size: 13px;
+  line-height: 20px;
+  color: var(--text2);
+}
+
+.q-clean-head:last-child {
+  border-bottom: 0;
+}
+
+/* --- the in-place editor ------------------------------------------------- */
+
+.q-editor {
+  display: grid;
+  grid-template-columns: 40px 90px minmax(0, 1fr) 200px 140px auto;
+  gap: 8px 10px;
+  align-items: end;
+  padding: 10px 16px 8px;
+  background: var(--sunken);
+  font-size: 13px;
+}
+
+.q-editor-n,
+.q-editor-ref {
+  padding-bottom: 8px;
+}
+
+.q-editor-field {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.q-editor-field .label {
+  font-size: 12px;
+  line-height: 16px;
+  color: var(--text2);
+}
+
+.q-editor .field {
+  height: 32px;
+}
+
+.q-editor-actions {
+  display: flex;
+  gap: 6px;
+  padding-bottom: 0;
+}
+
+.q-editor-hint {
+  grid-column: 3 / -1;
+}
+
+/* --- running total and submit -------------------------------------------- */
+
+/* Sticks to the top while the rows scroll, so the total is always in view. */
+.q-footer {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 24px;
+  padding: 12px 20px;
+  background: var(--surface);
+  border: 1px solid var(--b1);
+  border-radius: 4px;
+  box-shadow: var(--shadow-dialog);
+}
+
+.q-total {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  font-size: 13px;
+}
+
+.q-total-label {
+  color: var(--text2);
+}
+
+.q-total-figure {
+  font-size: 18px;
+  line-height: 26px;
+  font-weight: 600;
+}
+
+.q-submit {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.q-submit-reason {
+  font-size: 13px;
+  color: var(--text2);
+}

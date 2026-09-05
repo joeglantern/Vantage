@@ -1,0 +1,195 @@
+/* Approval. The last moment before money moves. Weighty, plain, checkable. */
+
+.ap-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 360px;
+  gap: 16px;
+  align-items: start;
+}
+
+.ap-main,
+.ap-aside {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.ap-total {
+  padding: 20px 24px 20px;
+}
+
+.ap-total-label {
+  font-size: 13px;
+  line-height: 20px;
+  color: var(--text2);
+}
+
+/* Display size from the type scale: the one place it is used. */
+.ap-total-figure {
+  font-size: 32px;
+  line-height: 38px;
+  font-weight: 600;
+  margin-top: 2px;
+}
+
+.ap-total-figure .mono {
+  font-family: var(--font-sans);
+  font-variant-numeric: tabular-nums;
+}
+
+.ap-total-count {
+  margin-top: 4px;
+  font-size: 14px;
+  line-height: 22px;
+}
+
+.ap-facts {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 6px 24px;
+  margin: 16px 0 0;
+  font-size: 13px;
+  line-height: 20px;
+}
+
+.ap-facts dt,
+.ap-facts dd {
+  margin: 0;
+}
+
+.ap-section-head {
+  padding: 10px 16px;
+  border-bottom: 1px solid var(--b1);
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 16px;
+}
+
+.ap-section-head h2 {
+  font-size: 15px;
+  line-height: 22px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.ap-section-head span {
+  font-size: 13px;
+  line-height: 20px;
+  text-align: right;
+}
+
+.ap-warning-row {
+  grid-template-columns: 100px minmax(0, 1fr) 220px;
+  padding-left: 16px;
+  padding-right: 16px;
+}
+
+.ap-warning-who {
+  font-weight: 500;
+}
+
+.ap-edit-row {
+  grid-template-columns: 70px minmax(0, 1fr) 220px;
+  padding-left: 16px;
+  padding-right: 16px;
+}
+
+.ap-item-row {
+  grid-template-columns: 40px 90px minmax(0, 1fr) 140px 130px;
+  padding-left: 16px;
+  padding-right: 16px;
+}
+
+.ap-item-total {
+  background: var(--sunken);
+  font-weight: 600;
+}
+
+.ap-blocked,
+.ap-action,
+.ap-controls,
+.ap-progress,
+.ap-approved {
+  padding: 16px 20px;
+}
+
+.ap-blocked h2,
+.ap-action h2,
+.ap-controls h2,
+.ap-progress h2,
+.ap-approved h2 {
+  font-size: 15px;
+  line-height: 22px;
+  font-weight: 600;
+}
+
+.ap-blocked p,
+.ap-action p,
+.ap-progress p,
+.ap-approved p {
+  margin-top: 6px;
+  font-size: 13px;
+  line-height: 20px;
+}
+
+.ap-blocked {
+  border-left: 3px solid var(--b3);
+}
+
+.ap-approved {
+  border-left: 3px solid var(--okT);
+}
+
+.ap-progress .progress {
+  margin-top: 12px;
+}
+
+.ap-approve {
+  width: 100%;
+  height: 44px;
+  margin-top: 14px;
+  font-size: 14px;
+  gap: 5px;
+}
+
+.ap-approve .mono {
+  font-family: inherit;
+  font-variant-numeric: tabular-nums;
+}
+
+.ap-sendback {
+  width: 100%;
+  margin-top: 8px;
+}
+
+.ap-action .hint {
+  margin-top: 8px;
+}
+
+.ap-controls .ap-facts {
+  margin-top: 10px;
+}
+
+.ap-code-label {
+  margin-top: 10px;
+}
+
+/* Wins over .field's full width: six digits do not need 500px. */
+.dc-dialog input.ap-code {
+  margin-top: 4px;
+  width: 200px;
+  font-size: 20px;
+  letter-spacing: 0.25em;
+  height: 44px;
+}
+
+.ap-code-failed {
+  border-color: var(--failT);
+}
+
+.ap-code-error {
+  font-size: 13px;
+  line-height: 20px;
+  color: var(--failT);
+}
