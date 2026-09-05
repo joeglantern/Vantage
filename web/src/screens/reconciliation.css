@@ -1,0 +1,128 @@
+.recon-clear {
+  border-color: var(--okB);
+  padding: 24px;
+  display: flex;
+  gap: 24px;
+  align-items: flex-start;
+}
+
+.recon-clear svg {
+  flex: none;
+}
+
+.recon-clear h2 {
+  font-size: 18px;
+  line-height: 26px;
+  font-weight: 600;
+}
+
+.recon-clear p {
+  margin-top: 4px;
+  max-width: 760px;
+}
+
+.recon-counts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 32px;
+  margin-top: 16px;
+  font-size: 13px;
+  line-height: 20px;
+}
+
+.recon-count {
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.recon-resolved {
+  padding: 16px 20px;
+}
+
+.recon-resolved h2 {
+  font-size: 15px;
+  line-height: 22px;
+  font-weight: 600;
+}
+
+.recon-resolved-grid {
+  display: grid;
+  grid-template-columns: 150px 110px minmax(0, 1fr) minmax(0, 1fr);
+  gap: 4px 12px;
+  margin-top: 8px;
+  font-size: 13px;
+  line-height: 20px;
+}
+
+/*
+ * The unresolved section carries the dashed treatment used for the unknown
+ * status itself. An open question is not an outcome, and the panel that holds
+ * open questions should not look like a result either.
+ */
+.recon-unresolved {
+  background: var(--surface);
+  border: 1.5px dashed var(--muted);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.recon-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 16px;
+  padding: 10px 16px;
+  border-bottom: 1px solid var(--b1);
+}
+
+.recon-head h2 {
+  font-size: 15px;
+  line-height: 22px;
+  font-weight: 600;
+}
+
+.recon-head-sub {
+  font-weight: 400;
+}
+
+.recon-head-sub::before {
+  content: '· ';
+}
+
+.unknown-row {
+  grid-template-columns: 110px 84px minmax(0, 1fr) 112px 90px 150px minmax(0, 1fr) 120px;
+  padding-left: 16px;
+  padding-right: 16px;
+}
+
+.group-row {
+  grid-template-columns: 110px 84px minmax(0, 1fr) minmax(0, 1fr) 120px;
+  padding-left: 16px;
+  padding-right: 16px;
+}
+
+.recon-overdue {
+  color: var(--failT);
+  font-weight: 500;
+}
+
+.recon-foot {
+  padding: 8px 16px;
+  font-size: 12px;
+  line-height: 18px;
+}
+
+.recon-none {
+  padding: 10px 16px;
+  font-size: 13px;
+  line-height: 20px;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.btn-xs {
+  height: 26px;
+  padding: 0 10px;
+  font-size: 12px;
+}

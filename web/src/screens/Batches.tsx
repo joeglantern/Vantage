@@ -1,20 +1,40 @@
 import { useState } from 'react';
 import { Card, EmptyState, Money, PageHeading, StatusPill } from '@web/components/primitives';
 import { batchTreatment } from '@web/lib/status';
-import { BATCHES } from '@web/data/fixtures';
+import { BATCHES, type BatchRow } from '@web/data/fixtures';
 import './batches.css';
 
 export type BatchesVariant = 'populated' | 'empty' | 'filtered';
 
-const FILTERS = ['All', 'Needs attention', 'Disbursing', 'Closed', 'Cancelled'] as const;
+/**
+ * The filters actually filter. "Needs attention" is the default sort as well
+ * as a filter, because somebody arriving at this screen is usually here to
+ * find the one batch that is waiting on them.
+ */
+const FILTERS = {
+  All: () => true,
+  'Needs attention': (b: BatchRow) =>
+    b.status === 'pending_approval' ||
+    b.status === 'needs_fixes' ||
+    b.status === 'completed_with_failures',
+  Disbursing: (b: BatchRow) => b.status === 'disbursing' || b.status === 'approved',
+  Closed: (b: BatchRow) => b.status === 'closed' || b.status === 'completed',
+  Cancelled: (b: BatchRow) => b.status === 'cancelled',
+} satisfies Record<string, (b: BatchRow) => boolean>;
 
-export function Batches({ variant }: { variant: BatchesVariant }) {
-  const [filter, setFilter] = useState<string>(variant === 'filtered' ? 'Cancelled' : 'All');
+type FilterName = keyof typeof FILTERS;
+
+export function Batches({ variant, onNewBatch }: { variant: BatchesVariant; onNewBatch: () => void }) {
+  const [filter, setFilter] = useState<FilterName>(variant === 'filtered' ? 'Cancelled' : 'All');
+
+  const rows = variant === 'empty' ? [] : BATCHES.filter(FILTERS[filter]);
 
   const subtitle =
     variant === 'empty'
       ? 'No payout cycles yet'
-      : `${BATCHES.length + 1} batches · anything needing attention is listed first`;
+      : filter === 'All'
+        ? `${BATCHES.length} batches, anything needing attention is listed first`
+        : `${rows.length} of ${BATCHES.length} batches`;
 
   return (
     <>
@@ -22,14 +42,14 @@ export function Batches({ variant }: { variant: BatchesVariant }) {
         title="Batches"
         subtitle={subtitle}
         action={
-          <button type="button" className="btn btn-primary">
+          <button type="button" className="btn btn-primary" onClick={onNewBatch}>
             New batch
           </button>
         }
       />
 
       <div className="filter-row">
-        {FILTERS.map((f) => (
+        {(Object.keys(FILTERS) as FilterName[]).map((f) => (
           <button
             key={f}
             type="button"
@@ -47,17 +67,17 @@ export function Batches({ variant }: { variant: BatchesVariant }) {
           title="No batches yet"
           body="A batch is one payout cycle: a list of people and amounts, reviewed, approved by a second person, and disbursed over M-Pesa. Before the first one, the payout channel must be verified in Settings; it is, as of 12 Feb 2026."
           action={
-            <button type="button" className="btn btn-primary">
+            <button type="button" className="btn btn-primary" onClick={onNewBatch}>
               New batch
             </button>
           }
         />
       )}
 
-      {variant === 'filtered' && (
+      {variant !== 'empty' && rows.length === 0 && (
         <Card className="none-match">
           <span>
-            No batches are cancelled. 9 batches match no filter;{' '}
+            No batches match {filter.toLowerCase()}. {BATCHES.length} exist in total;{' '}
             <button type="button" className="linklike" onClick={() => setFilter('All')}>
               show all
             </button>
@@ -66,7 +86,7 @@ export function Batches({ variant }: { variant: BatchesVariant }) {
         </Card>
       )}
 
-      {variant === 'populated' && (
+      {variant !== 'empty' && rows.length > 0 && (
         <Card className="table-card">
           <div className="row row-head batch-row">
             <span>Reference</span>
@@ -78,7 +98,7 @@ export function Batches({ variant }: { variant: BatchesVariant }) {
             <span>Approved by</span>
             <span>Updated</span>
           </div>
-          {BATCHES.map((b) => (
+          {rows.map((b) => (
             <div key={b.reference} className="row batch-row">
               <button type="button" className="linklike mono">
                 {b.reference}

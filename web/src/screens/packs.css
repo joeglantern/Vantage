@@ -1,0 +1,133 @@
+.pack-row {
+  grid-template-columns: 120px minmax(0, 1fr) 80px 90px 130px 140px 140px 90px;
+}
+
+.pack-superseded {
+  color: var(--muted);
+}
+
+.pack-superseded .mono {
+  color: var(--muted);
+}
+
+.pack-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.pack-superseded-notice {
+  padding: 16px 20px;
+  border-color: var(--warnB);
+  background: var(--warnBg);
+}
+
+.pack-superseded-notice h2 {
+  font-size: 15px;
+  line-height: 22px;
+  font-weight: 600;
+  color: var(--warnT);
+}
+
+.pack-superseded-notice p {
+  margin-top: 4px;
+  max-width: 820px;
+}
+
+/* The pack reads as a document, not as a dashboard. It is printed. */
+.pack-page {
+  background: var(--surface);
+  border: 1px solid var(--b1);
+  border-radius: 4px;
+  padding: 4px 0;
+}
+
+.pack-section {
+  padding: 20px 24px;
+  border-bottom: 1px solid var(--b1);
+}
+
+.pack-section:last-child {
+  border-bottom: 0;
+}
+
+.pack-section > h2 {
+  font-size: 15px;
+  line-height: 22px;
+  font-weight: 600;
+  margin-bottom: 10px;
+}
+
+.pack-summary {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 160px 80px;
+  gap: 6px 16px;
+  font-size: 14px;
+  line-height: 22px;
+  max-width: 640px;
+}
+
+.pack-unresolved {
+  font-weight: 600;
+}
+
+.pack-net {
+  font-weight: 600;
+  border-top: 1px solid var(--b2);
+  padding-top: 6px;
+  margin-top: 2px;
+}
+
+.pack-note {
+  margin-top: 10px;
+  max-width: 780px;
+}
+
+.pack-attest {
+  display: grid;
+  grid-template-columns: 220px minmax(0, 1fr);
+  gap: 6px 24px;
+  margin: 0;
+  font-size: 13px;
+  line-height: 20px;
+  max-width: 880px;
+}
+
+.pack-attest dt,
+.pack-attest dd,
+.pack-verify dt,
+.pack-verify dd {
+  margin: 0;
+}
+
+.line-row {
+  grid-template-columns: 90px minmax(0, 1fr) minmax(0, 1fr) 120px 110px 130px 120px 150px;
+  padding-left: 0;
+  padding-right: 0;
+}
+
+.pack-mismatch {
+  color: var(--warnT);
+  font-weight: 500;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.pack-verify {
+  display: grid;
+  grid-template-columns: 180px minmax(0, 1fr);
+  gap: 12px 24px;
+  margin: 12px 0 0;
+  font-size: 13px;
+  line-height: 20px;
+}
+
+.pack-verify-how {
+  display: block;
+  margin-top: 4px;
+  font-family: var(--font-sans);
+}
+
+.break {
+  word-break: break-all;
+}

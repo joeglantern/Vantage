@@ -38,39 +38,6 @@ export const BATCHES: readonly BatchRow[] = [
   { reference: 'YCIC-2025-12', programme: 'YCIC December 2025 stipend', status: 'cancelled', items: 18, totalMinor: '2700000', preparedBy: 'Wanjiku Ndegwa', approvedBy: '', updatedAt: '10 Dec 09:00' },
 ];
 
-/** The first five rows of cohort-messy.csv, exactly as typed. */
-export const RAW_ROWS = [
-  { n: 1, ref: 'YCIC-001', name: 'Amina Wanjiru', phone: '0712345678', amount: '1500', note: 'March stipend' },
-  { n: 2, ref: 'YCIC-002', name: 'Peter Kimani Mwangi', phone: '+254722345678', amount: '"1,500"', note: 'comma in the amount' },
-  { n: 3, ref: 'YCIC-003', name: 'Grace Achieng Otieno', phone: '254733456789', amount: '1500.00', note: 'trailing zeros' },
-  { n: 4, ref: 'YCIC-004', name: 'Brian Odhiambo', phone: '0110123456', amount: '1500', note: 'the 01xx range' },
-  { n: 5, ref: 'YCIC-005', name: 'Faith Njeri', phone: '745678901', amount: '1500', note: 'bare national number' },
-] as const;
-
-/** The exact figures the fixture produces. Verified against the domain rules. */
-export const IMPORT_SUMMARY = { rows: 20, totalMinor: '8000050', fileName: 'cohort-messy.csv', fileSize: '1.3 KB' } as const;
-
-export const IMPORT_ERRORS = {
-  unreadable: {
-    title: 'The file could not be read',
-    body: 'stipends.xlsx is an Excel workbook, not a CSV. Vantage reads CSV only, because a CSV has no hidden formulas or sheets. In Excel, choose Save as, CSV UTF-8, then upload that file, or copy the rows and paste them.',
-  },
-  columns: {
-    title: 'The file has the wrong columns',
-    body: 'Found: Name, Mobile, KES. Expected: full_name, phone, amount, and optionally participant_ref and note. Rename the header row to match and upload again; the order does not matter.',
-  },
-  emptyfile: {
-    title: 'The file has a header row and nothing else',
-    body: 'cohort-april.csv is 58 bytes and contains only the column names. Check you exported the right sheet, then upload again.',
-  },
-  large: {
-    title: 'The file is too large',
-    body: 'all-programmes-2025.csv is 11.2 MB; the limit is 5 MB, about 60,000 rows. A batch is one cycle for one programme; split the file by programme and upload each one as its own batch.',
-  },
-} as const;
-
-export type ImportErrorKey = keyof typeof IMPORT_ERRORS;
-
 export interface Person {
   readonly name: string;
   /** Full MSISDN. Masked at render, never stored masked. */

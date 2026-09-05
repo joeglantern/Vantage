@@ -8,22 +8,12 @@
  * validation rules actually produce.
  */
 import { describe, expect, it } from 'vitest';
-import { readFileSync } from 'node:fs';
-import { fileURLToPath } from 'node:url';
-import { parseCsv } from '../support/csv.js';
 import { ITEM_STATUSES, type ItemStatus } from '@domain/payout-item';
 import { BATCH_STATUSES, type BatchStatus } from '@domain/payout-batch';
-import { moneyFromMajorString, moneyFromMinorString, isWholeMajorUnit } from '@domain/money';
+import { moneyFromMinorString, isWholeMajorUnit } from '@domain/money';
 import { maskMsisdn, normaliseMsisdn } from '@domain/msisdn';
 import { batchTreatment, itemTreatment } from '@web/lib/status';
-import {
-  BATCHES,
-  IMPORT_SUMMARY,
-  LIMITS,
-  PEOPLE,
-  PERSON_DETAIL,
-  RAW_ROWS,
-} from '@web/data/fixtures';
+import { BATCHES, LIMITS, PEOPLE, PERSON_DETAIL } from '@web/data/fixtures';
 
 describe('every domain status has a visual treatment', () => {
   it.each(ITEM_STATUSES)('item status %s', (status: ItemStatus) => {
@@ -89,7 +79,6 @@ describe('fixture money', () => {
     ...BATCHES.map((b) => b.totalMinor),
     ...PEOPLE.map((p) => p.totalMinor),
     ...PERSON_DETAIL.payments.map((p) => p.amountMinor),
-    IMPORT_SUMMARY.totalMinor,
     LIMITS.perItemMinor,
     LIMITS.perBatchMinor,
     LIMITS.largestCycleMinor,
@@ -129,36 +118,6 @@ describe('fixture money', () => {
     const summed = PERSON_DETAIL.payments.reduce((t, p) => t + BigInt(p.amountMinor), 0n);
     expect(summed.toString()).toBe(PERSON_DETAIL.person.totalMinor);
     expect(PERSON_DETAIL.payments).toHaveLength(PERSON_DETAIL.person.payments);
-  });
-});
-
-describe('the import screen tells the truth about the fixture', () => {
-  const path = fileURLToPath(new URL('../fixtures/cohort-messy.csv', import.meta.url));
-  const rows = parseCsv(readFileSync(path, 'utf8'));
-
-  it('states the real row count', () => {
-    expect(IMPORT_SUMMARY.rows).toBe(rows.length);
-  });
-
-  it('states the real total, computed from the file rather than typed by hand', () => {
-    // This is the assertion that stops a designer's placeholder total surviving
-    // into the build. The brief says the numbers must add up under scrutiny,
-    // and somebody will check.
-    const total = rows.reduce((sum, row) => {
-      const parsed = moneyFromMajorString(row['amount'] ?? '', 'KES');
-      return parsed.ok ? sum + parsed.money.amountMinor : sum;
-    }, 0n);
-    expect(total.toString()).toBe(IMPORT_SUMMARY.totalMinor);
-  });
-
-  it('previews rows that actually exist in the file, as typed', () => {
-    for (const preview of RAW_ROWS) {
-      const source = rows[preview.n - 1];
-      expect(source, `row ${preview.n}`).toBeDefined();
-      expect(source?.['participant_ref']).toBe(preview.ref);
-      expect(source?.['full_name']).toBe(preview.name);
-      expect(source?.['phone']).toBe(preview.phone);
-    }
   });
 });
 

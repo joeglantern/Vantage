@@ -1,0 +1,21 @@
+participant_ref,full_name,phone,amount,note
+YCIC-001,Amina Wanjiru,0712345678,1500,March stipend
+YCIC-002,Peter Kimani Mwangi,+254722345678,"1,500",comma in the amount
+YCIC-003,Grace Achieng Otieno,254733456789,1500.00,trailing zeros
+YCIC-004,Brian Odhiambo,0110123456,1500,the 01xx range
+YCIC-005,Faith Njeri,745678901,1500,bare national number
+YCIC-006,Samuel Kipchoge Rotich,'0723456780,1500,excel text coercion
+YCIC-007,Mercy Wambui,0798 765 432,1500,spaces from the phone book
+YCIC-008,Joseph Mutua Musyoka,+254-100-234-567,1500,hyphens
+YCIC-009,Wanjiru Amina,254712345678,1500,same person as row 1 in another format
+YCIC-010,Kevin Otieno,07123456ab,1500,number typed into a text column
+YCIC-011,Lucy Nyambura,071234567,1500,one digit short
+YCIC-012,Office Line,0202345678,1500,landline not a mobile
+YCIC-013,Dennis Kariuki,0745112233,0,unpaid this cycle but left in the sheet
+YCIC-014,Rose Atieno,0756223344,1500.50,cents that mpesa cannot move
+YCIC-015,Anthony Mwangi,0767334455,50000,misplaced decimal meant 5000
+YCIC-016,Nancy Wairimu,0778445566,1500,brand new participant
+YCIC-017,P. K. Mwangi,0722345678,1500,name differs from our records
+YCIC-018,Amina Wanjiru,0789556677,4500,three times her usual amount
+YCIC-019,Cynthia Adhiambo,0798765432,1500,shares a phone with Mercy in row 7
+YCIC-020,Michael Kiprop,0712998877,1500,March stipend
