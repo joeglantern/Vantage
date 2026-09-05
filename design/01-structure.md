@@ -1,8 +1,9 @@
 # Vantage: structure
 
 The screen inventory, navigation model and component set. Read alongside
-`00-brief.md`. Statuses and finding codes come from the domain files listed
-there; this document says where they appear, not what they are.
+`00-brief.md`, and `02-assets.md` for what to produce beyond the screens.
+Statuses and finding codes come from the domain files listed there; this
+document says where they appear, not what they are.
 
 ## Navigation model
 
@@ -223,6 +224,10 @@ Draw each once, with its states.
 | Data table | Dense, sortable, keyboard navigable, with sticky header and inline edit |
 | Row editor | In-place edit with save and cancel, and a visible record that it was edited |
 | Confirmation dialog | For irreversible actions. Restates the amount and count |
+| Destructive confirmation | Erasure and credential replacement. Requires typing a word |
+| Inline confirmation | Small reversible things, resolved in place, no dialog |
+| Toast | Transient success. Never the only copy of anything |
+| Banner | Persistent page-level or environment-level problems |
 | Step-up challenge | The TOTP prompt at approval |
 | Environment banner | Persistent, unmissable, non-production only |
 | Empty state | Neutral and informative. Never jokey, never illustrated with a mascot |
@@ -230,11 +235,17 @@ Draw each once, with its states.
 | Timeline | State transitions with actor and timestamp, used on payment detail and in the pack |
 | Verification block | Hashes plus instructions to recompute them |
 
+No browser dialog is ever acceptable. See "Dialogs, confirmations and messages"
+in `00-brief.md` for the rules each of these has to meet.
+
 ## Tokens
 
-- **Colour.** A neutral base. A single restrained accent for primary actions.
-  A status palette covering: neutral or pending, in progress, success, warning,
-  failure, and **unresolved**, which must be visually distinct from failure.
+- **Colour.** A neutral base. A single restrained accent for primary actions,
+  and not the default dashboard blue. A status palette covering: neutral or
+  pending, in progress, success, warning, failure, and **unresolved**, which must
+  be visually distinct from failure. Every colour flat. No gradients anywhere in
+  the token set, so there is nothing to reach for later.
+  Check the whole status palette in greyscale before committing to it.
 - **Type.** One family. Tabular figures for anything numeric, so columns of
   money align. A scale with enough steps for dense tables and for the large
   total on the approval screen.

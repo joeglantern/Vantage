@@ -145,39 +145,207 @@ knows yet.
   cycle cost".
 - No AI features, no chat, no assistant.
 
-## Inspiration, and what to take from each
+## Inspiration
 
-**GOV.UK Design System.** The closest match in spirit and the most useful single
-reference. Take the error summary pattern almost directly: a list at the top of
-the page naming every problem, each one a link that jumps to the field. That is
-exactly what the exception queue needs. Take the plain-language error messages,
-the generous hit targets, the willingness to be plain rather than clever, and
-the accessibility discipline.
+Nothing on this list is the same product. Each one has solved a specific problem
+Vantage also has. Go and look at the actual product, not a dribbble shot of it.
 
-**Stripe Dashboard.** Take the payment detail view: a single payment with its
-full timeline of events, its gateway codes, and its receipt, all on one page
-with nothing hidden. Take the way status is communicated calmly and
-consistently. Do not take the marketing gloss.
+### The closest analogues
 
-**Mercury and Wise.** Take the treatment of an irreversible money action. Both
-do a good job of the moment before you commit: the amount large and unambiguous,
-the recipient confirmed, the total restated, and no way to fire it by accident.
-The approval screen should feel like that.
+**Gusto, the run payroll flow.** The nearest thing to Vantage's core loop that
+exists. Review a list of people and amounts, see a total, understand what
+changed since last time, approve, money moves, documents come out the other end.
+Study how they make a large irreversible total feel checkable rather than scary,
+and how the summary before you commit is organised.
 
-**Linear, or Height.** Take table density, keyboard navigation, and speed of
-filtering on a long list. A programme officer working 300 rows should be able to
-move without reaching for the mouse. Do not take the aesthetic, which is far too
-fashionable for this product.
+**Modern Treasury.** Payment operations and reconciliation for companies moving
+money at volume. This is the closest match for the reconciliation view and for
+how a payment's state and its raw gateway messages are presented together.
 
-**Xero or QuickBooks reconciliation screens.** Take the mental model of matching
-two sides and clearing exceptions until the queue is empty. Ugly, but the
-workflow is right and finance people already understand it.
+**Vanta or Drata.** Compliance evidence platforms. Their entire job is producing
+something an auditor will accept, which is Vantage's job too. Take how they
+frame controls, evidence and readiness, and how they show a thing as verified
+rather than merely claimed.
 
-### Actively avoid
+**Deel or Remote, the contractor payout run.** Many recipients, many countries,
+one batch, one approval. Look at how they handle a payee whose details are wrong
+without derailing the whole run.
 
-Dark glassy dashboards. Gradient hero cards. Playful illustration or empty-state
-mascots. Rounded pill everything. Big numeric "KPI" tiles with sparklines.
-Anything that would look out of place in a document attached to a donor report.
+### Payments and money
+
+**Stripe Dashboard.** The payment detail view: one payment, its full event
+timeline, its gateway codes, its receipt, nothing hidden behind a tab. Also the
+calmest status vocabulary in the industry.
+
+**Increase, or Column.** Banking infrastructure dashboards. Unusually restrained,
+very high information density, no decoration at all. Close to the register
+Vantage wants.
+
+**Mercury.** The moment before an irreversible transfer. Amount large and
+unambiguous, recipient confirmed, total restated, no way to fire it by accident.
+The approval screen should feel like this.
+
+**Wise.** Breaking an amount into its parts so there is no ambiguity about what
+lands. Also good at showing progress on a transfer that takes time.
+
+**Paystack and Flutterwave dashboards.** Worth looking at specifically because
+they are built for this market and your users may already have seen them. Note
+what they get right about phone-number-as-account, and where they get cluttered.
+
+**The M-Pesa business portal.** Look at it because it is what you are replacing.
+Understand what it makes hard.
+
+### Dense review work
+
+**Linear.** Table density, keyboard navigation, filter speed, and command
+palette. A programme officer working 300 rows should never reach for the mouse.
+Take the interaction model. Do not take the aesthetic, which is more fashionable
+than this product should be.
+
+**Numeric, or FloQast.** Accounting close software, built entirely around
+clearing a queue of exceptions until it is empty. That is the exception queue's
+mental model, already solved.
+
+**Retool, or Sigma.** Honest internal-tool density. Ugly in places, but they
+never waste a row of vertical space.
+
+### Plainness and accessibility
+
+**GOV.UK Design System.** The single most useful reference here. Take the error
+summary pattern almost directly: a list at the top of the page naming every
+problem, each entry a link that jumps to the field. That is the exception queue.
+Take the plain-language error messages, the generous hit targets, and the
+accessibility discipline. Take the willingness to be plain rather than clever.
+
+**Google Cloud Console, or Google Admin.** For the specific quality bar of
+looking like a large company built it: consistent spacing, restrained colour,
+tables that behave, nothing decorative. This is the polish level to aim for.
+
+**Xero, bank reconciliation screen.** Matching two sides until the queue clears.
+Dated, but finance people already understand it and that is worth something.
+
+### How to use this list
+
+Take the interaction model from Linear and Numeric, the payment presentation
+from Stripe and Modern Treasury, the confirmation weight from Mercury and Gusto,
+the error handling from GOV.UK, and the finish quality from Google's consoles.
+
+Do not blend the visual styles. Pick one coherent visual direction of your own
+and use these for how things behave.
+
+## Do not let it look AI-generated
+
+This is a real requirement, not a stylistic preference. The users are finance
+and programme staff who have to hand this product's output to a donor. Anything
+that reads as generated undermines the one thing Vantage sells, which is that
+its records can be trusted.
+
+### Banned outright
+
+- Gradients. No gradient backgrounds, no gradient buttons, no gradient text, no
+  gradient borders. Flat colour only. If something needs to recede, use a
+  neutral, not a fade.
+- Purple to pink, indigo to violet, or teal to blue colour schemes.
+- Glassmorphism, frosted panels, backdrop blur, translucent cards.
+- Glows, coloured drop shadows, neon accents, "aurora" or blob backgrounds.
+- Emoji used as interface icons.
+- Sparkle icons, and any visual that signals "AI".
+- Bento grids.
+- Cards with heavy rounding and a large soft shadow used for everything,
+  particularly where a plain table is the right answer.
+- Untouched framework defaults. A stock Tailwind palette at `blue-500` and
+  `gray-500`, with `rounded-2xl` and `shadow-lg` on every surface, is the single
+  most recognisable tell there is.
+- Fake avatars, fake testimonials, fake company logos.
+- Centre-aligned page content with a lot of empty space around it. This is a
+  data tool. Fill the width.
+
+### Copy rules
+
+The interface text is part of the design and it is where generated work is most
+obvious.
+
+- **No em dashes anywhere.** Use a comma, a colon or a full stop.
+- No marketing verbs. Banned: effortlessly, seamlessly, powerful, robust,
+  unlock, elevate, supercharge, streamline, empower, delight, magic, simply,
+  just, easily.
+- No "Let's get started", no "Oops", no "Something went wrong" without saying
+  what.
+- Say the specific thing. "4 numbers could not be read" beats "Some items need
+  attention". "Approve KES 15,000 to 10 people" beats "Confirm action".
+- British English. Organisation, normalise, authorised, recognise.
+- Sentence case for headings and buttons, not Title Case.
+- Buttons name the action and its object. "Approve batch", not "Continue" or
+  "Submit".
+- Error messages say what happened, why, and what to do next, in that order.
+
+### What to do instead
+
+Personality here comes from craft, not decoration. Precise spacing. A type scale
+that was actually chosen. Tabular figures that align down a column of money.
+Borders that land on the pixel. A status palette that is legible at a glance and
+still legible in greyscale. Transitions that are fast and few. Restraint that
+reads as confidence.
+
+One distinctive, defensible choice is worth more than ten decorative ones. Pick
+something specific to own, the way Stripe owns its payment timeline, and make it
+excellent.
+
+## Identity
+
+Vantage needs its own identity and it must not borrow anyone else's.
+
+- **No Claude or Anthropic branding of any kind.** No logo, no wordmark, no
+  colour palette lifted from Claude, no "built with" mark, no reference in the
+  interface, the favicon, the page title or the pack. The palette in particular:
+  do not reach for the warm clay and cream that Claude uses.
+- No other vendor's brand either. It is not a Stripe skin or a Linear clone.
+- Design a simple wordmark and an app mark that work at 16px in a browser tab
+  and in one colour on a printed pack cover. Geometric, quiet, memorable. The
+  name means a point of view that lets you see clearly, and there is something
+  in that worth using, but do not make it literal or clever.
+- Pick a primary colour that is not the default blue every dashboard uses, and
+  that stays distinguishable from the success, warning and failure colours in
+  the status palette. That constraint matters more than the shade.
+
+## Dialogs, confirmations and messages
+
+**No browser dialogs. Ever.** `alert()`, `confirm()` and `prompt()` are banned
+outright. They cannot be styled, they cannot be made accessible properly, they
+block the page, and they make a product that moves money look like a school
+project. Every one of them is a custom component.
+
+This matters beyond appearance. The confirmation before an irreversible payout
+is a control, not a formality, and a native dialog cannot restate an amount,
+name a recipient count, or require anything of the person clicking it.
+
+Design these, each with its own artboard:
+
+| Component | Where it is used |
+| --- | --- |
+| Confirmation dialog | Any irreversible action. Restates the amount and the count |
+| Destructive confirmation | Erasure, credential replacement. Requires typing a word to proceed |
+| Step-up challenge | The TOTP prompt at approval |
+| Inline confirmation | Small reversible things, resolved in place rather than in a dialog |
+| Toast | Something succeeded. Transient, never carries the only copy of information |
+| Banner | Something is wrong with the page or the environment. Persistent |
+| Error summary | The list at the top of a form. Persistent, linked |
+
+Rules for all of them:
+
+- Focus moves into the dialog on open and returns to the trigger on close.
+- Focus is trapped while it is open.
+- Escape cancels. The cancel action is never the visually dominant one, and the
+  confirm action is never the default focus for anything destructive.
+- The dialog says what will happen, to how many people, for how much money, and
+  whether it can be undone. It never says only "Are you sure?".
+- Nothing important lives only in a toast. If a person needs it later, it goes
+  on the page.
+- Never use a dialog to report a validation error. Those belong inline, next to
+  the field, and in the summary at the top.
+
+Use the native `<dialog>` element as the basis if you like, since it gives
+correct semantics for free, but style it completely.
 
 ## Accessibility
 
