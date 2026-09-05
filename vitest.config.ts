@@ -9,6 +9,7 @@ export default defineConfig({
       '@domain': r('./src/domain'),
       '@modules': r('./src/modules'),
       '@platform': r('./src/platform'),
+      '@web': r('./web/src'),
     },
   },
   test: {

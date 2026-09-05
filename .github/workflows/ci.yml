@@ -25,7 +25,10 @@ jobs:
       - run: npm ci
       - run: npx prisma generate
       - run: npm run typecheck
+      - run: npm run typecheck:web
       - run: npm run lint
+      # The interface has to actually build, not merely typecheck.
+      - run: npm run web:build
       # docs/05: a compromised dependency is a live threat. Audit gates the build.
       - run: npm audit --audit-level=high
 

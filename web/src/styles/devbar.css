@@ -1,0 +1,39 @@
+/*
+ * State switcher. A development affordance, not part of the product.
+ * It exists so every state on the board can be linked to and reviewed.
+ */
+.devbar {
+  position: fixed;
+  right: 16px;
+  bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 8px;
+  background: var(--surface);
+  border: 1px solid var(--b2);
+  border-radius: 4px;
+  box-shadow: var(--shadow-dialog);
+  font-size: 12px;
+  z-index: 10;
+}
+
+.devbar-tag {
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-size: 10px;
+  font-weight: 600;
+}
+
+.devbar select,
+.devbar button {
+  height: 26px;
+  border: 1px solid var(--b2);
+  border-radius: 2px;
+  background: var(--surface);
+  color: var(--text);
+  font-size: 12px;
+  padding: 0 6px;
+  cursor: pointer;
+}

@@ -1,0 +1,85 @@
+/*
+ * Design tokens, taken verbatim from ScreensBoard.dc.html themeVars().
+ *
+ * Do not edit these to taste. They are the contract between the design and the
+ * build, and the values were chosen for specific reasons recorded in
+ * design/03-tokens.md: no gradients anywhere, a near-black primary action so
+ * colour is reserved for meaning, and a dark theme on true black with text at
+ * #F2F4F5 rather than white, because white on #000 haloes on OLED.
+ */
+
+:root {
+  --canvas: #f7f8f8;
+  --surface: #ffffff;
+  --sunken: #f0f1f2;
+  --hover: #f0f1f2;
+
+  --b1: #e3e5e7;
+  --b2: #cdd1d4;
+  --b3: #a7adb2;
+
+  --text: #15181b;
+  --text2: #454b50;
+  --muted: #6b7177;
+  --inverse: #ffffff;
+
+  --accent: #0f5257;
+  --wash: #e6efef;
+
+  /* Status. Five carry a hue. Unresolved is drawn, not coloured. */
+  --pendT: #4a5055;
+  --progT: #1f63b8;
+  --progBg: #e7eef9;
+  --progB: #b4cbea;
+  --okT: #1b7a4b;
+  --okBg: #e4f2ea;
+  --okB: #b2d9c4;
+  --warnT: #8a5800;
+  --warnBg: #fbf0dc;
+  --warnB: #ead5a8;
+  --failT: #b3261e;
+  --failBg: #fbe9e7;
+  --failB: #efc0bb;
+
+  --shadow-dialog: 0 1px 2px rgb(0 0 0 / 6%);
+
+  --font-sans: 'IBM Plex Sans', system-ui, -apple-system, sans-serif;
+  --font-mono: 'IBM Plex Mono', ui-monospace, 'SFMono-Regular', monospace;
+
+  color-scheme: light;
+}
+
+[data-theme='dark'] {
+  --canvas: #000000;
+  --surface: #0a0b0c;
+  --sunken: #000000;
+  --hover: #141618;
+
+  --b1: #1c1f22;
+  --b2: #2a2e33;
+  --b3: #3d4348;
+
+  --text: #f2f4f5;
+  --text2: #a8aeb4;
+  --muted: #71787e;
+  --inverse: #000000;
+
+  --accent: #4fb3b8;
+  --wash: #0d2224;
+
+  --pendT: #a8aeb4;
+  --progT: #6ba5f2;
+  --progBg: #0b1929;
+  --progB: #1e3a5c;
+  --okT: #4fc183;
+  --okBg: #06180f;
+  --okB: #14472c;
+  --warnT: #e0a33a;
+  --warnBg: #1c1405;
+  --warnB: #4a3510;
+  --failT: #f2685e;
+  --failBg: #1f0b09;
+  --failB: #4f1b16;
+
+  color-scheme: dark;
+}

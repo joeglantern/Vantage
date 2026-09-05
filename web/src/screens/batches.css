@@ -1,0 +1,72 @@
+.filter-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  height: 28px;
+  padding: 0 10px;
+  border: 1px solid var(--b2);
+  border-radius: 2px;
+  background: transparent;
+  color: var(--text2);
+  font-size: 13px;
+  cursor: pointer;
+  transition: background-color 120ms ease-out, border-color 120ms ease-out;
+}
+
+.chip:hover {
+  background: var(--hover);
+}
+
+.chip-on,
+.chip-on:hover {
+  border-color: var(--accent);
+  background: var(--wash);
+  color: var(--accent);
+  font-weight: 500;
+}
+
+.table-card {
+  overflow: hidden;
+}
+
+.table-card .row:last-child {
+  border-bottom: 0;
+}
+
+.batch-row {
+  grid-template-columns: 120px minmax(0, 1fr) 170px 70px 130px 150px 150px 110px;
+}
+
+.batch-row a {
+  text-decoration: none;
+}
+
+.batch-row a:hover {
+  text-decoration: underline;
+}
+
+.small {
+  font-size: 12px;
+}
+
+.none-match {
+  padding: 16px 20px;
+  font-size: 13px;
+  line-height: 20px;
+  color: var(--text2);
+}
+
+.linklike {
+  background: none;
+  border: 0;
+  padding: 0;
+  color: var(--accent);
+  cursor: pointer;
+  text-decoration: underline;
+  font: inherit;
+}

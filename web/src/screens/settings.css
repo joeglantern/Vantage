@@ -1,0 +1,94 @@
+.settings-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+  align-items: start;
+}
+
+.settings-card {
+  padding: 16px 20px;
+}
+
+.settings-card h2 {
+  font-size: 15px;
+  line-height: 22px;
+  font-weight: 600;
+}
+
+.settings-note {
+  margin: 2px 0 12px;
+}
+
+.spec {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 6px 16px;
+  margin: 0;
+  font-size: 13px;
+  line-height: 20px;
+}
+
+.spec dt,
+.spec dd {
+  margin: 0;
+}
+
+.verify {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  align-items: flex-start;
+}
+
+.break {
+  word-break: break-all;
+}
+
+.settings-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 16px;
+  flex-wrap: wrap;
+}
+
+.settings-explain {
+  margin-top: 12px;
+  font-size: 12px;
+  line-height: 18px;
+}
+
+.limits {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  font-size: 13px;
+  line-height: 20px;
+}
+
+.limit-input {
+  height: 32px;
+  width: 180px;
+  margin-top: 4px;
+  text-align: right;
+}
+
+.limit-hint {
+  margin-top: 4px;
+  color: var(--text2);
+}
+
+.settings-save {
+  margin-top: 16px;
+}
+
+.members {
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  gap: 6px 12px;
+  font-size: 13px;
+  line-height: 20px;
+}
+
+.member {
+  display: contents;
+}

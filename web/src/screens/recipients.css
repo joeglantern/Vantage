@@ -1,0 +1,131 @@
+.search {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  height: 32px;
+  padding: 0 10px;
+  border: 1px solid var(--b2);
+  border-radius: 2px;
+  width: 320px;
+  background: var(--surface);
+  color: var(--muted);
+}
+
+.search-input {
+  border: 0;
+  background: none;
+  outline: none;
+  font: inherit;
+  font-size: 13px;
+  color: var(--text);
+  width: 100%;
+}
+
+.search:focus-within {
+  border-color: var(--b3);
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.people-row {
+  grid-template-columns: minmax(0, 1fr) 130px 110px minmax(0, 1fr) 130px 90px 130px;
+}
+
+.people-row a {
+  text-decoration: none;
+}
+
+.people-row a:hover {
+  text-decoration: underline;
+}
+
+.detail-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 400px;
+  gap: 16px;
+  align-items: start;
+}
+
+.detail-main {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.detail-facts {
+  padding: 16px 20px;
+}
+
+.detail-facts dl {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 6px 24px;
+  margin: 0;
+  font-size: 13px;
+  line-height: 20px;
+}
+
+.detail-facts dt,
+.detail-facts dd {
+  margin: 0;
+}
+
+.detail-facts dd {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.name-mismatch {
+  display: inline-flex !important;
+  align-items: center;
+  gap: 6px;
+  color: var(--warnT);
+  font-weight: 500;
+  justify-content: flex-start !important;
+}
+
+.detail-payments-head {
+  padding: 10px 16px;
+  border-bottom: 1px solid var(--b1);
+  font-size: 15px;
+  line-height: 22px;
+  font-weight: 600;
+}
+
+.payment-row {
+  grid-template-columns: 120px minmax(0, 1fr) 130px 150px 130px;
+  padding-left: 16px;
+  padding-right: 16px;
+}
+
+.rights-panel {
+  padding: 16px 20px;
+}
+
+.rights-panel h2 {
+  font-size: 15px;
+  line-height: 22px;
+  font-weight: 600;
+}
+
+.rights-note {
+  margin: 2px 0 12px;
+}
+
+.rights-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: stretch;
+}
+
+.rights-actions .btn {
+  justify-content: flex-start;
+}
+
+.rights-explain {
+  margin-top: 12px;
+  font-size: 12px;
+  line-height: 18px;
+}

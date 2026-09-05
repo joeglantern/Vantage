@@ -1,0 +1,124 @@
+.import-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 400px;
+  gap: 16px;
+  align-items: start;
+}
+
+.import-main {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.dropzone {
+  border: 1.5px dashed var(--b3);
+  padding: 40px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  text-align: center;
+}
+
+.dropzone-title {
+  font-size: 15px;
+  line-height: 22px;
+  font-weight: 600;
+}
+
+.dropzone-hint {
+  font-size: 13px;
+  line-height: 20px;
+}
+
+.parsing {
+  padding: 16px 20px;
+}
+
+.parsing h2 {
+  font-size: 15px;
+  line-height: 22px;
+  font-weight: 600;
+}
+
+.parsing p {
+  margin: 4px 0 12px;
+  font-size: 13px;
+  line-height: 20px;
+}
+
+.progress {
+  height: 4px;
+  background: var(--sunken);
+  position: relative;
+}
+
+.progress-bar {
+  position: absolute;
+  inset: 0 auto 0 0;
+  background: var(--text);
+}
+
+.preview-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  padding: 10px 16px;
+  border-bottom: 1px solid var(--b1);
+}
+
+.preview-head h2 {
+  font-size: 15px;
+  line-height: 22px;
+  font-weight: 600;
+}
+
+.raw-row {
+  grid-template-columns: 40px 110px minmax(0, 1fr) 150px 110px minmax(0, 1fr);
+  padding-left: 16px;
+  padding-right: 16px;
+}
+
+.sans {
+  font-family: var(--font-sans);
+}
+
+.preview-foot {
+  padding: 8px 16px;
+}
+
+.import-aside {
+  padding: 16px 20px;
+}
+
+.import-aside h2 {
+  font-size: 15px;
+  line-height: 22px;
+  font-weight: 600;
+}
+
+.import-aside-note {
+  margin: 2px 0 8px;
+}
+
+.col-spec {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 6px 12px;
+  margin: 0;
+  font-size: 13px;
+  line-height: 20px;
+}
+
+.col-spec dt,
+.col-spec dd {
+  margin: 0;
+}
+
+.import-link {
+  display: block;
+  margin-top: 8px;
+  font-size: 13px;
+}

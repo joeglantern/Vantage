@@ -13,3 +13,4 @@ master-key*
 
 .DS_Store
 Thumbs.db
+dist/

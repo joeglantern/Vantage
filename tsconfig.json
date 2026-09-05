@@ -27,7 +27,8 @@
     "paths": {
       "@domain/*": ["src/domain/*"],
       "@modules/*": ["src/modules/*"],
-      "@platform/*": ["src/platform/*"]
+      "@platform/*": ["src/platform/*"],
+      "@web/*": ["web/src/*"]
     }
   },
   "include": ["src/**/*.ts", "test/**/*.ts", "*.config.ts", "eslint.config.js"]

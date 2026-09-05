@@ -1,0 +1,89 @@
+.signin-page {
+  min-height: 100%;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 96px 24px;
+  background: var(--canvas);
+}
+
+.signin-card {
+  width: 420px;
+  padding: 32px;
+}
+
+.signin-brand {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.signin-card h1 {
+  margin-top: 20px;
+  font-size: 24px;
+  line-height: 32px;
+  font-weight: 600;
+}
+
+.signin-sub {
+  margin-top: 4px;
+  font-size: 13px;
+  line-height: 20px;
+}
+
+.signin-error {
+  margin-top: 16px;
+  border: 1px solid var(--failB);
+  background: var(--failBg);
+  color: var(--failT);
+  border-radius: 2px;
+  padding: 8px 12px;
+  font-size: 13px;
+  line-height: 20px;
+}
+
+.signin-label {
+  margin-top: 16px;
+  margin-bottom: 4px;
+}
+
+.signin-submit {
+  width: 100%;
+  height: 40px;
+  margin-top: 20px;
+  font-size: 14px;
+}
+
+.signin-forgot {
+  display: inline-block;
+  margin-top: 12px;
+  font-size: 13px;
+}
+
+.totp {
+  display: flex;
+  gap: 6px;
+  margin-top: 6px;
+}
+
+.totp-digit {
+  width: 48px;
+  height: 44px;
+  border: 1px solid var(--b2);
+  border-radius: 2px;
+  background: var(--surface);
+  color: var(--text);
+  font-family: var(--font-mono);
+  font-size: 18px;
+  text-align: center;
+}
+
+.totp-digit-error {
+  border: 2px solid var(--failT);
+}
+
+.signin-totp-note {
+  margin-top: 12px;
+}

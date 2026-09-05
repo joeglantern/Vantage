@@ -1,0 +1,111 @@
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 22px;
+  padding: 0 8px;
+  border-radius: 2px;
+  border: 1px solid;
+  font-size: 12px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.pill-dot {
+  width: 8px;
+  height: 8px;
+  background: currentColor;
+  display: inline-block;
+}
+
+.pill-diamond {
+  width: 8px;
+  height: 8px;
+  background: currentColor;
+  display: inline-block;
+  transform: rotate(45deg);
+}
+
+.pill-pending  { color: var(--pendT); background: var(--sunken); border-color: var(--b2); }
+.pill-progress { color: var(--progT); background: var(--progBg); border-color: var(--progB); }
+.pill-ok       { color: var(--okT);   background: var(--okBg);   border-color: var(--okB); }
+.pill-warn     { color: var(--warnT); background: var(--warnBg); border-color: var(--warnB); }
+.pill-fail     { color: var(--failT); background: var(--failBg); border-color: var(--failB); }
+
+/*
+ * Unresolved is drawn, not coloured. No fill, a dashed border, neutral ink.
+ * An open question is not an outcome and must never be mistaken for one.
+ */
+.pill-unresolved {
+  color: var(--text);
+  background: transparent;
+  border-color: var(--muted);
+  border-width: 1.5px;
+  border-style: dashed;
+}
+
+.page-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 24px;
+}
+
+.page-heading h1 {
+  font-size: 24px;
+  line-height: 32px;
+  font-weight: 600;
+}
+
+.page-heading-sub {
+  font-size: 13px;
+  line-height: 20px;
+  color: var(--text2);
+  margin-top: 4px;
+}
+
+.empty-state {
+  padding: 24px;
+  display: flex;
+  gap: 24px;
+  align-items: flex-start;
+}
+
+.empty-state img {
+  flex: none;
+  object-fit: contain;
+}
+
+.empty-state h2 {
+  font-size: 18px;
+  line-height: 26px;
+  font-weight: 600;
+}
+
+.empty-state p {
+  margin-top: 4px;
+  max-width: 720px;
+}
+
+.empty-state-action {
+  margin-top: 16px;
+}
+
+.alert {
+  background: var(--surface);
+  border: 2px solid var(--failT);
+  border-radius: 4px;
+  padding: 14px 20px;
+}
+
+.alert h2 {
+  font-size: 15px;
+  line-height: 22px;
+  font-weight: 600;
+}
+
+.alert p {
+  margin-top: 4px;
+  font-size: 13px;
+  line-height: 20px;
+}
