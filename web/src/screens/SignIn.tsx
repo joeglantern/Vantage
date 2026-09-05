@@ -61,13 +61,13 @@ export function SignIn({ variant }: { variant: SignInVariant }) {
             <label className="label signin-label" htmlFor="password">
               Password
             </label>
-            <input id="password" className="field mono" type="password" defaultValue="password1234" />
+            <input id="password" className="field mono" type="password" autoComplete="current-password" />
             <button type="button" className="btn btn-primary signin-submit" disabled={locked}>
               Sign in
             </button>
-            <a href="#" className="signin-forgot">
+            <button type="button" className="linklike signin-forgot">
               Forgotten your password
-            </a>
+            </button>
           </>
         )}
 

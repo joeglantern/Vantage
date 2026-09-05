@@ -6,7 +6,7 @@
  * enforced once: amounts are never rounded or abbreviated, and an MSISDN is
  * never rendered in full.
  */
-import type { ReactNode } from 'react';
+import type { HTMLAttributes, ReactNode } from 'react';
 import { formatMoney, type Money as DomainMoney } from '@domain/money';
 import { maskMsisdn } from '@domain/msisdn';
 import type { Tone, Treatment } from '@web/lib/status';
@@ -58,7 +58,7 @@ export function StatusPill({ treatment }: { treatment: Treatment }) {
   );
 }
 
-export function Card({ children, className = '', ...rest }: { children: ReactNode; className?: string } & React.HTMLAttributes<HTMLElement>) {
+export function Card({ children, className = '', ...rest }: { children: ReactNode; className?: string } & HTMLAttributes<HTMLElement>) {
   return (
     <section className={`card ${className}`} {...rest}>
       {children}

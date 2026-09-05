@@ -46,7 +46,7 @@ export function Recipients({ variant }: { variant: RecipientsVariant }) {
           </div>
           {PEOPLE.map((p) => (
             <div key={p.ref} className="row people-row">
-              <a href="#">{p.name}</a>
+              <a href="#/recipients/detail">{p.name}</a>
               <Phone msisdn={p.msisdn} />
               <span className="mono">{p.ref}</span>
               <span className="text2">{p.programme}</span>
@@ -72,11 +72,11 @@ export function Recipients({ variant }: { variant: RecipientsVariant }) {
             <dl>
               <dt className="text2">Name</dt>
               <dd>
-                {person.name} <a href="#">Correct</a>
+                {person.name} <button type="button" className="linklike">Correct</button>
               </dd>
               <dt className="text2">Phone</dt>
               <dd>
-                <Phone msisdn={person.msisdn} /> <a href="#">Correct</a>
+                <Phone msisdn={person.msisdn} /> <button type="button" className="linklike">Correct</button>
               </dd>
               <dt className="text2">Reference</dt>
               <dd className="mono">{person.ref}</dd>

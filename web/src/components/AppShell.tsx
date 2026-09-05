@@ -32,6 +32,18 @@ export interface AppShellProps {
 export function AppShell({ active, onNavigate, user, environment = 'sandbox', children }: AppShellProps) {
   return (
     <div className="shell">
+      <a
+        className="skip-link"
+        href="#main"
+        onClick={(event) => {
+          // The router owns the hash. Letting this navigate would parse #main
+          // as a screen name and bounce the user to Batches.
+          event.preventDefault();
+          document.getElementById('main')?.focus();
+        }}
+      >
+        Skip to main content
+      </a>
       {environment !== 'production' && (
         <div className="env-banner" role="status">
           <strong>{environment === 'sandbox' ? 'Sandbox' : 'Development'}</strong>
@@ -66,7 +78,9 @@ export function AppShell({ active, onNavigate, user, environment = 'sandbox', ch
               {user.name} <span className="muted">&middot; {user.role}</span>
             </span>
           </header>
-          <main className="main">{children}</main>
+          <main id="main" className="main" tabIndex={-1}>
+            {children}
+          </main>
         </div>
       </div>
     </div>

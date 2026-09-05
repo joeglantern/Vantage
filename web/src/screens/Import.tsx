@@ -30,10 +30,11 @@ export function Import({ variant }: { variant: ImportVariant }) {
                 <path d="M14 2v6h6" />
               </svg>
               <div className="dropzone-title">
-                Drop a CSV here, or <a href="#">choose a file</a>
+                Drop a CSV here, or <button type="button" className="linklike">choose a file</button>
               </div>
               <div className="text2 dropzone-hint">
-                Up to 5 MB, up to 5,000 rows. Or <a href="#">paste rows from a spreadsheet</a>.
+                Up to 5 MB, up to 5,000 rows. Or{' '}
+                <button type="button" className="linklike">paste rows from a spreadsheet</button>.
               </div>
             </Card>
           )}
@@ -114,12 +115,12 @@ export function Import({ variant }: { variant: ImportVariant }) {
             <dt className="mono">note</dt>
             <dd className="text2">Optional. Kept with the row.</dd>
           </dl>
-          <a href="#" className="import-link">
+          <button type="button" className="linklike import-link">
             Download a template CSV
-          </a>
-          <a href="#" className="import-link">
+          </button>
+          <button type="button" className="linklike import-link">
             Start from the February batch instead
-          </a>
+          </button>
         </aside>
       </div>
     </>

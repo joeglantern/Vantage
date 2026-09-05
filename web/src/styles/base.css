@@ -189,3 +189,38 @@ button {
 .right {
   text-align: right;
 }
+
+/*
+ * An action that reads as a link. A button, not an anchor, because an
+ * <a href="#"> announces itself as a link, goes nowhere, and scrolls the page
+ * to the top when a keyboard user activates it.
+ */
+.linklike {
+  background: none;
+  border: 0;
+  padding: 0;
+  color: var(--accent);
+  cursor: pointer;
+  text-decoration: underline;
+  font: inherit;
+  text-align: left;
+}
+
+/* Keyboard users should not have to tab the whole rail to reach the work. */
+.skip-link {
+  position: absolute;
+  left: -9999px;
+  top: 8px;
+  z-index: 20;
+  background: var(--surface);
+  color: var(--text);
+  border: 1px solid var(--b2);
+  border-radius: 2px;
+  padding: 8px 12px;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.skip-link:focus {
+  left: 8px;
+}

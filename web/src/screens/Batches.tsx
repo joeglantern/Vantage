@@ -80,9 +80,9 @@ export function Batches({ variant }: { variant: BatchesVariant }) {
           </div>
           {BATCHES.map((b) => (
             <div key={b.reference} className="row batch-row">
-              <a href="#" className="mono">
+              <button type="button" className="linklike mono">
                 {b.reference}
-              </a>
+              </button>
               <span>{b.programme}</span>
               <span>
                 <StatusPill treatment={batchTreatment(b.status)} />
