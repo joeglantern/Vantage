@@ -240,6 +240,9 @@ in `00-brief.md` for the rules each of these has to meet.
 
 ## Tokens
 
+Concrete values, with the reasoning, are in `03-tokens.md`. Start there. The
+summary of what the set has to cover:
+
 - **Colour.** A neutral base. A single restrained accent for primary actions,
   and not the default dashboard blue. A status palette covering: neutral or
   pending, in progress, success, warning, failure, and **unresolved**, which must

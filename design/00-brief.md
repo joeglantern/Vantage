@@ -63,6 +63,7 @@ These define the real states. Designing without them will miss cases.
 
 | File | What it gives you |
 | --- | --- |
+| `design/03-tokens.md` | The palette, type and spacing to start from |
 | `src/domain/payout-item.ts` | Every status a payment can be in, and the legal transitions between them |
 | `src/domain/payout-batch.ts` | Every status a batch can be in |
 | `src/domain/validation.ts` | Every finding code, its severity, and its message |
@@ -139,7 +140,8 @@ knows yet.
 - No marketing site, no landing page, no pricing page.
 - No self-serve signup, no onboarding wizard, no organisation switcher. Version
   one is one organisation with configuration done by hand.
-- No dark mode as a first pass. Get one theme genuinely right.
+- No third theme. Light and the true black dark theme in `03-tokens.md`, both
+  done properly. Get light right first, then port it.
 - No dashboard of vanity metrics. Nobody needs a chart of payouts over time. The
   only numbers that matter are "is anything unresolved" and "what did this
   cycle cost".
@@ -304,9 +306,10 @@ Vantage needs its own identity and it must not borrow anyone else's.
   and in one colour on a printed pack cover. Geometric, quiet, memorable. The
   name means a point of view that lets you see clearly, and there is something
   in that worth using, but do not make it literal or clever.
-- Pick a primary colour that is not the default blue every dashboard uses, and
-  that stays distinguishable from the success, warning and failure colours in
-  the status palette. That constraint matters more than the shade.
+- The palette is in `03-tokens.md`, with the reasoning for each choice and a
+  list of the specific hex values to avoid. The short version: the primary
+  action is near-black ink rather than a brand colour, so colour is reserved for
+  meaning and no status ever competes with a button.
 
 ## Dialogs, confirmations and messages
 
