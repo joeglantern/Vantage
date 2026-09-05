@@ -76,7 +76,7 @@
 }
 
 .raw-row {
-  grid-template-columns: 40px 110px minmax(0, 1fr) 150px 110px minmax(0, 1fr);
+  grid-template-columns: 40px 110px minmax(min-content, 1fr) 150px 110px minmax(min-content, 1fr);
   padding-left: 16px;
   padding-right: 16px;
 }

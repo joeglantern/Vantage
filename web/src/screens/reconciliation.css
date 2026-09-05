@@ -90,13 +90,13 @@
 }
 
 .unknown-row {
-  grid-template-columns: 110px 84px minmax(0, 1fr) 112px 90px 150px minmax(0, 1fr) 120px;
+  grid-template-columns: 110px 84px minmax(min-content, 1fr) 112px 90px 150px minmax(min-content, 1fr) 120px;
   padding-left: 16px;
   padding-right: 16px;
 }
 
 .group-row {
-  grid-template-columns: 110px 84px minmax(0, 1fr) minmax(0, 1fr) 120px;
+  grid-template-columns: 110px 84px minmax(min-content, 1fr) minmax(min-content, 1fr) 120px;
   padding-left: 16px;
   padding-right: 16px;
 }

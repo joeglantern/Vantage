@@ -30,8 +30,21 @@
   font-weight: 500;
 }
 
+/*
+ * A wide table scrolls inside its own card rather than being clipped. This was
+ * `overflow: hidden`, which silently cut the last columns off at any window
+ * narrower than the table, with no scrollbar to say so.
+ */
 .table-card {
-  overflow: hidden;
+  overflow-x: auto;
+}
+
+/*
+ * Without this the rows are sized to the card's content box instead of to the
+ * grid, so the columns are squeezed and the card has nothing to scroll.
+ */
+.table-card .row {
+  min-width: min-content;
 }
 
 .table-card .row:last-child {
@@ -39,7 +52,7 @@
 }
 
 .batch-row {
-  grid-template-columns: 120px minmax(0, 1fr) 170px 70px 130px 150px 150px 110px;
+  grid-template-columns: 120px minmax(min-content, 1fr) 170px 70px 130px 150px 150px 110px;
 }
 
 .batch-row a {

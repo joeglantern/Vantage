@@ -108,3 +108,34 @@
   gap: 16px;
   flex: 1;
 }
+
+/*
+ * The theme control lives in the top bar because it is a product setting, not a
+ * development aid. It used to sit in the state switcher along the bottom, which
+ * meant the only way to use dark mode was through a strip that had no business
+ * being in front of a customer.
+ */
+.topbar-right {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.topbar-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  background: none;
+  color: var(--text2);
+  cursor: pointer;
+}
+
+.topbar-icon:hover {
+  background: var(--hover);
+  color: var(--text);
+}

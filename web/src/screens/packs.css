@@ -1,5 +1,5 @@
 .pack-row {
-  grid-template-columns: 120px minmax(0, 1fr) 80px 90px 130px 140px 140px 90px;
+  grid-template-columns: 120px minmax(min-content, 1fr) 80px 90px 130px 140px 140px 90px;
 }
 
 .pack-superseded {
@@ -100,7 +100,7 @@
 }
 
 .line-row {
-  grid-template-columns: 90px minmax(0, 1fr) minmax(0, 1fr) 120px 110px 130px 120px 150px;
+  grid-template-columns: 90px minmax(min-content, 1fr) minmax(min-content, 1fr) 120px 110px 130px 120px 150px;
   padding-left: 0;
   padding-right: 0;
 }

@@ -28,7 +28,7 @@
 }
 
 .people-row {
-  grid-template-columns: minmax(0, 1fr) 130px 110px minmax(0, 1fr) 130px 90px 130px;
+  grid-template-columns: minmax(min-content, 1fr) 130px 110px minmax(min-content, 1fr) 130px 90px 130px;
 }
 
 .people-row a {
@@ -94,7 +94,7 @@
 }
 
 .payment-row {
-  grid-template-columns: 120px minmax(0, 1fr) 130px 150px 130px;
+  grid-template-columns: 120px minmax(min-content, 1fr) 130px 150px 130px;
   padding-left: 16px;
   padding-right: 16px;
 }

@@ -85,7 +85,7 @@
 /* --- the rows ------------------------------------------------------------ */
 
 .q-row {
-  grid-template-columns: 40px 90px minmax(0, 1fr) 130px 120px 110px 210px;
+  grid-template-columns: 40px 90px minmax(min-content, 1fr) 130px 120px 110px 210px;
   padding-left: 16px;
   padding-right: 16px;
 }

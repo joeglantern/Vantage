@@ -7,8 +7,14 @@
  * queue renders the findings those rules produced. Nothing on that path is
  * mocked.
  *
- * The screens that still read from fixtures are marked in the state switcher.
- * They are honest about what they are, which the dead nav items were not.
+ * The screens that still read from fixtures cannot be otherwise until there is
+ * an API. They are honest about what they are, which the dead nav items were not.
+ *
+ * There is a state switcher for jumping between screens and their variants, but
+ * it is a development aid and it is off. It only builds in `vite dev`, and even
+ * then it stays hidden until you ask for it with ?states in the URL. It used to
+ * render unconditionally, which made the product look like a page of design
+ * mockups to anybody who opened it.
  */
 import { useEffect, useState } from 'react';
 import { AppShell, type NavItem } from '@web/components/AppShell';
@@ -69,6 +75,14 @@ function readHash(): { screen: ScreenKey; variant: string } {
   const variant = rawVariant !== undefined && variants.includes(rawVariant) ? rawVariant : variants[0]!;
   return { screen, variant };
 }
+
+/**
+ * The switcher is opt in, and only exists in a development build. `import.meta
+ * .env.DEV` is statically false in `vite build`, so the whole block below is
+ * dropped from the bundle rather than merely hidden at runtime.
+ */
+const SHOW_STATES =
+  import.meta.env.DEV && new URLSearchParams(window.location.search).has('states');
 
 export function App() {
   const [{ screen, variant }, setRoute] = useState(readHash);
@@ -157,52 +171,53 @@ export function App() {
           active={OWNER[screen] ?? 'Batches'}
           onNavigate={(item) => go(LANDING[item])}
           user={user}
+          theme={dark ? 'dark' : 'light'}
+          onToggleTheme={() => setDark((d) => !d)}
         >
           {body}
         </AppShell>
       )}
 
-      <div className="devbar" role="region" aria-label="State switcher, development only">
-        <span className="devbar-tag">States</span>
-        <select
-          aria-label="Screen"
-          value={screen}
-          onChange={(event) => go(event.target.value as ScreenKey)}
-        >
-          {Object.keys(SCREENS).map((s) => (
-            <option key={s} value={s}>
-              {s}
-            </option>
-          ))}
-        </select>
-        <select
-          aria-label="Variant"
-          value={variant}
-          onChange={(event) => go(screen, event.target.value)}
-          disabled={SCREENS[screen].length < 2}
-        >
-          {SCREENS[screen].map((v) => (
-            <option key={v} value={v}>
-              {v}
-            </option>
-          ))}
-        </select>
-        {imported !== null && (
-          <button
-            type="button"
-            title={`Showing your uploaded ${imported.fileName}. Clear to return to the sample data.`}
-            onClick={() => {
-              setImported(null);
-              go('import');
-            }}
+      {SHOW_STATES && (
+        <div className="devbar" role="region" aria-label="State switcher, development only">
+          <span className="devbar-tag">States</span>
+          <select
+            aria-label="Screen"
+            value={screen}
+            onChange={(event) => go(event.target.value as ScreenKey)}
           >
-            Clear upload
-          </button>
-        )}
-        <button type="button" onClick={() => setDark((d) => !d)}>
-          {dark ? 'Light' : 'Dark'}
-        </button>
-      </div>
+            {Object.keys(SCREENS).map((s) => (
+              <option key={s} value={s}>
+                {s}
+              </option>
+            ))}
+          </select>
+          <select
+            aria-label="Variant"
+            value={variant}
+            onChange={(event) => go(screen, event.target.value)}
+            disabled={SCREENS[screen].length < 2}
+          >
+            {SCREENS[screen].map((v) => (
+              <option key={v} value={v}>
+                {v}
+              </option>
+            ))}
+          </select>
+          {imported !== null && (
+            <button
+              type="button"
+              title={`Showing your uploaded ${imported.fileName}. Clear to return to the sample data.`}
+              onClick={() => {
+                setImported(null);
+                go('import');
+              }}
+            >
+              Clear upload
+            </button>
+          )}
+        </div>
+      )}
     </>
   );
 }

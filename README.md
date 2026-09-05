@@ -27,10 +27,63 @@ boundary, not an implementation detail. See [Compliance](docs/06-compliance.md).
 | [08. Roadmap](docs/08-roadmap.md) | Validation gate, phases, what is explicitly deferred |
 | [09. Engineering conventions](docs/09-engineering-conventions.md) | Standards, testing strategy, CI, definition of done |
 
+## Running it
+
+Node 22 or newer.
+
+```sh
+npm install
+npm run web:dev
+```
+
+That serves the interface at http://localhost:5173. There is no API yet, so it
+runs entirely in the browser and nothing is saved: refresh and your upload is
+gone.
+
+One path through it is real rather than a mock. Go to Batches, then New batch,
+and drop a CSV on it. The file is parsed in the browser, the validation rules in
+`src/domain` run over the rows, and the exception queue shows the findings those
+rules actually produced. Correct a row and the total moves. Submit stays disabled
+until nothing blocks.
+
+There is a sample file to try at
+[web/public/cohort-messy.csv](web/public/cohort-messy.csv), also linked from the
+import screen. It is deliberately untidy in the ways a real export is: a quoted
+comma inside an amount, the apostrophe Excel puts in front of a text-formatted
+number, a landline, a duplicate of an earlier row in a different format, and a
+misplaced decimal. Twenty rows. Nine are clean, seven block, and four only warn,
+which `test/unit/fixtures.test.ts` pins row by row so the sample cannot quietly
+drift.
+
+The other screens read from fixtures and say so.
+
+There is also a switcher for jumping between screens and their variants, but it
+is a development aid rather than part of the product, so it is off. Run
+`npm run web:dev` and open <http://localhost:5173/?states> to get it. It is
+compiled out of `npm run web:build` entirely.
+
+### Checks
+
+```sh
+npm test              # unit, property and web component tests
+npm run lint
+npm run typecheck     # server and shared domain
+npm run typecheck:web
+```
+
+`npm run test:integration` is separate because it needs Docker running. It starts
+a real PostgreSQL container and exercises the database constraints, the
+append-only triggers, row level security and tenant isolation against it. Those
+guarantees cannot be tested honestly against a mock.
+
 ## Status
 
-Pre-build. **Phase 0 (validation) is not complete and no code should be written
-until it is**. See [Roadmap](docs/08-roadmap.md#phase-0-validation-gate).
+The domain layer, the database schema and the interface exist. **There is no
+server**: no API, no M-Pesa integration, no persistence. See
+[Roadmap](docs/08-roadmap.md) for what Phase 1 still needs.
+
+**Phase 0 (validation) is not complete**, and it gates real money moving rather
+than gating code. See [Roadmap](docs/08-roadmap.md#phase-0-validation-gate).
 
 ## A word on the legal content
 

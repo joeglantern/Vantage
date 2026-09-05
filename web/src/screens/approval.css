@@ -80,7 +80,7 @@
 }
 
 .ap-warning-row {
-  grid-template-columns: 100px minmax(0, 1fr) 220px;
+  grid-template-columns: 100px minmax(min-content, 1fr) 220px;
   padding-left: 16px;
   padding-right: 16px;
 }
@@ -90,13 +90,13 @@
 }
 
 .ap-edit-row {
-  grid-template-columns: 70px minmax(0, 1fr) 220px;
+  grid-template-columns: 70px minmax(min-content, 1fr) 220px;
   padding-left: 16px;
   padding-right: 16px;
 }
 
 .ap-item-row {
-  grid-template-columns: 40px 90px minmax(0, 1fr) 140px 130px;
+  grid-template-columns: 40px 90px minmax(min-content, 1fr) 140px 130px;
   padding-left: 16px;
   padding-right: 16px;
 }
