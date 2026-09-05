@@ -113,8 +113,8 @@ export function App() {
             variant="blocking"
             rows={imported.rows}
             batch={{
-              reference: 'YCIC-2026-03',
-              programme: 'YCIC March 2026 stipend',
+              reference: imported.reference,
+              programme: imported.programme,
               fileName: imported.fileName,
               uploadedAt: 'just now',
             }}

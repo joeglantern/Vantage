@@ -21,6 +21,27 @@ export interface ImportedBatch {
   readonly fileName: string;
   readonly fileSize: string;
   readonly totalMinor: bigint;
+  /** The human handle for this cycle, for example YCIC-2026-03. */
+  readonly reference: string;
+  readonly programme: string;
+}
+
+/**
+ * A first guess at the reference and programme, taken from the file name.
+ *
+ * Deliberately derived rather than invented. An earlier version hard-coded
+ * YCIC-2026-03 whatever was uploaded, so a health promoters sheet came back
+ * titled as a youth cohort stipend. In a product whose whole claim is accurate
+ * records, a heading that quietly misnames the batch is worse than an ugly one.
+ * Both fields are editable, and the person doing the cycle knows the answer.
+ */
+function suggestFrom(fileName: string): { reference: string; programme: string } {
+  const stem = fileName.replace(/\.[^.]+$/, '').replace(/[^A-Za-z0-9]+/g, ' ').trim();
+  const words = stem === '' ? ['Batch'] : stem.split(' ');
+  return {
+    reference: words.join('-').toUpperCase().slice(0, 32),
+    programme: words.join(' ').replace(/^./, (c) => c.toUpperCase()),
+  };
 }
 
 type Phase =
@@ -57,6 +78,7 @@ function totalOf(rows: readonly TypedRow[]): bigint {
 export function Import({ onValidate }: { onValidate: (batch: ImportedBatch) => void }) {
   const [phase, setPhase] = useState<Phase>({ kind: 'waiting' });
   const [dragging, setDragging] = useState(false);
+  const [details, setDetails] = useState({ reference: '', programme: '' });
   const fileInput = useRef<HTMLInputElement>(null);
 
   async function accept(file: File): Promise<void> {
@@ -101,9 +123,17 @@ export function Import({ onValidate }: { onValidate: (batch: ImportedBatch) => v
     }
 
     const rows = toTypedRows(parsed.sheet.rows);
+    const suggested = suggestFrom(file.name);
+    setDetails(suggested);
     setPhase({
       kind: 'ready',
-      batch: { rows, fileName: file.name, fileSize: size, totalMinor: totalOf(rows) },
+      batch: {
+        rows,
+        fileName: file.name,
+        fileSize: size,
+        totalMinor: totalOf(rows),
+        ...suggested,
+      },
     });
   }
 
@@ -192,10 +222,46 @@ export function Import({ onValidate }: { onValidate: (batch: ImportedBatch) => v
                 <button
                   type="button"
                   className="btn btn-sm btn-primary"
-                  onClick={() => onValidate(phase.batch)}
+                  disabled={details.reference.trim() === '' || details.programme.trim() === ''}
+                  onClick={() => onValidate({ ...phase.batch, ...details })}
                 >
                   Validate {phase.batch.rows.length} rows
                 </button>
+              </div>
+
+              <div className="batch-details">
+                <div>
+                  <label className="label" htmlFor="batch-reference">
+                    Batch reference
+                  </label>
+                  <input
+                    id="batch-reference"
+                    className="field mono"
+                    value={details.reference}
+                    onChange={(event) =>
+                      setDetails((d) => ({ ...d, reference: event.target.value }))
+                    }
+                  />
+                  <div className="hint">
+                    Your handle for this cycle. It appears on the pack and must be unique.
+                  </div>
+                </div>
+                <div>
+                  <label className="label" htmlFor="batch-programme">
+                    Programme
+                  </label>
+                  <input
+                    id="batch-programme"
+                    className="field"
+                    value={details.programme}
+                    onChange={(event) =>
+                      setDetails((d) => ({ ...d, programme: event.target.value }))
+                    }
+                  />
+                  <div className="hint">
+                    Suggested from the file name. Correct it if it is not right.
+                  </div>
+                </div>
               </div>
               <div className="row row-head raw-row">
                 <span>Row</span>
