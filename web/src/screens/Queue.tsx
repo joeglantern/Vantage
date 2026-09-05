@@ -40,6 +40,22 @@ import './queue.css';
 
 export type QueueVariant = 'validating' | 'blocking' | 'warnings' | 'acknowledged' | 'clear';
 
+/** What the heading, the submitted card and the submit dialog say about the batch. */
+export interface QueueBatch {
+  readonly reference: string;
+  readonly programme: string;
+  readonly fileName: string;
+  readonly uploadedAt: string;
+}
+
+export interface QueueProps {
+  variant: QueueVariant;
+  /** The typed rows to review. Defaults to the fixture sheet the variant implies. */
+  rows?: readonly TypedRow[];
+  /** Defaults to the fixture batch. A real import supplies its own. */
+  batch?: QueueBatch;
+}
+
 interface Acknowledgement {
   readonly by: string;
   readonly at: string;
@@ -93,8 +109,8 @@ function startingEdits(variant: QueueVariant): Map<number, Edit> {
   return edits;
 }
 
-export function Queue({ variant }: { variant: QueueVariant }) {
-  const [rows, setRows] = useState<readonly TypedRow[]>(() => startingRows(variant));
+export function Queue({ variant, rows: initialRows, batch = REVIEW_BATCH }: QueueProps) {
+  const [rows, setRows] = useState<readonly TypedRow[]>(() => initialRows ?? startingRows(variant));
   const [acks, setAcks] = useState(() => startingAcks(variant, rows));
   const [edits, setEdits] = useState(() => startingEdits(variant));
   const [editing, setEditing] = useState<number | null>(null);
@@ -104,7 +120,10 @@ export function Queue({ variant }: { variant: QueueVariant }) {
   const [submitted, setSubmitted] = useState(false);
   const rowRefs = useRef(new Map<number, HTMLDivElement>());
 
-  const uploadedTotal = useMemo(() => validateTyped(startingRows(variant)).totalMinor, [variant]);
+  const uploadedTotal = useMemo(
+    () => validateTyped(initialRows ?? startingRows(variant)).totalMinor,
+    [initialRows, variant],
+  );
   const outcome = useMemo(() => validateTyped(rows), [rows]);
   const queue = useMemo(() => buildQueue(rows, outcome), [rows, outcome]);
   const batchFindings = batchLevelFindings(outcome);
@@ -163,9 +182,9 @@ export function Queue({ variant }: { variant: QueueVariant }) {
   if (variant === 'validating') {
     return (
       <>
-        <Heading rows={rows.length} />
+        <Heading batch={batch} rows={rows.length} />
         <Card className="q-validating" aria-busy="true">
-          <h2>Validating {plural(rows.length, 'row', 'rows')} from {REVIEW_BATCH.fileName}</h2>
+          <h2>Validating {plural(rows.length, 'row', 'rows')} from {batch.fileName}</h2>
           <p className="text2">
             Each row is checked against the same rules: the phone number normalises to a Kenyan
             mobile, the amount is a positive whole shilling, nobody appears twice, and nothing is
@@ -183,14 +202,14 @@ export function Queue({ variant }: { variant: QueueVariant }) {
   if (submitted) {
     return (
       <>
-        <Heading rows={rows.length} />
+        <Heading batch={batch} rows={rows.length} />
         <Card className="q-submitted" role="status">
           <h2>
             Submitted for approval: {plural(rows.length, 'row', 'rows')},{' '}
             <Money amountMinor={outcome.totalMinor.toString()} />
           </h2>
           <p className="text2 pretty">
-            {REVIEW_BATCH.reference} is now waiting for an approver. David Ochieng and Grace Muthoni
+            {batch.reference} is now waiting for an approver. David Ochieng and Grace Muthoni
             hold the role; you cannot approve it yourself. An approver can send it back here with a
             note, and nothing moves until one of them passes the step-up challenge.
           </p>
@@ -201,7 +220,7 @@ export function Queue({ variant }: { variant: QueueVariant }) {
 
   return (
     <>
-      <Heading rows={rows.length} />
+      <Heading batch={batch} rows={rows.length} />
 
       <Summary
         blocking={blocking}
@@ -321,7 +340,7 @@ export function Queue({ variant }: { variant: QueueVariant }) {
 
       <Dialog
         open={submitOpen}
-        title={`Submit ${REVIEW_BATCH.reference} for approval`}
+        title={`Submit ${batch.reference} for approval`}
         confirmLabel={`Submit ${plural(rows.length, 'row', 'rows')} for approval`}
         onCancel={() => setSubmitOpen(false)}
         onConfirm={() => {
@@ -332,7 +351,7 @@ export function Queue({ variant }: { variant: QueueVariant }) {
       >
         <span>
           <Money amountMinor={outcome.totalMinor.toString()} /> to {plural(rows.length, 'person', 'people')},
-          for {REVIEW_BATCH.programme}.
+          for {batch.programme}.
         </span>
         <span>
           {warnings.length === 0
@@ -348,11 +367,11 @@ export function Queue({ variant }: { variant: QueueVariant }) {
   );
 }
 
-function Heading({ rows }: { rows: number }) {
+function Heading({ batch, rows }: { batch: QueueBatch; rows: number }) {
   return (
     <PageHeading
-      title={`${REVIEW_BATCH.reference}: review`}
-      subtitle={`${REVIEW_BATCH.programme} · ${plural(rows, 'row', 'rows')} from ${REVIEW_BATCH.fileName}, uploaded ${REVIEW_BATCH.uploadedAt}`}
+      title={`${batch.reference}: review`}
+      subtitle={`${batch.programme} · ${plural(rows, 'row', 'rows')} from ${batch.fileName}, uploaded ${batch.uploadedAt}`}
     />
   );
 }
