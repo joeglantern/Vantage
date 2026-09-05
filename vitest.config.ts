@@ -32,6 +32,13 @@ export default defineConfig({
       },
       {
         extends: true,
+        // The interface's interactive state, rendered in jsdom. The screens
+        // hold rows in state and re-run the domain rules on every edit, and
+        // that behaviour is not visible to a test that only imports modules.
+        test: { name: 'web', include: ['web/src/**/*.test.tsx'], environment: 'jsdom' },
+      },
+      {
+        extends: true,
         // Integration spins up real Postgres via Testcontainers. Serial, and slow.
         test: {
           name: 'integration',
