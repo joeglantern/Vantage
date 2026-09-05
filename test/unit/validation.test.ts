@@ -144,3 +144,51 @@ describe('the outcome as a whole', () => {
     expect(outcome.findings.every((f) => f.row === 7 || f.row === null)).toBe(true);
   });
 });
+
+describe('finding messages are written for a person, not a log', () => {
+  const everyFailure: ImportedRow[] = [
+    row({ row: 1, rawMsisdn: '' }),
+    row({ row: 2, rawMsisdn: '07123456ab' }),
+    row({ row: 3, rawMsisdn: '0202345678' }),
+    row({ row: 4, rawMsisdn: '071234567' }),
+    row({ row: 5, rawMsisdn: '0712345671', amount: kes(0n) }),
+    row({ row: 6, rawMsisdn: '0712345672', amount: kes(1_500_50n) }),
+    row({ row: 7, rawMsisdn: '0712345673', amount: kes(50_000_00n) }),
+    row({ row: 8, rawMsisdn: '0712345674' }),
+    row({ row: 9, rawMsisdn: '0712345674', fullName: 'Someone Else' }),
+  ];
+
+  const outcome = validateBatch(everyFailure, policy, known([AMINA]));
+
+  it('never shows a raw error code to the reader', () => {
+    // This is the bug this guard exists for: the invalid-number message was
+    // built by interpolating the normaliser's error code, so the exception
+    // queue told a programme officer "contains_letters".
+    for (const finding of outcome.findings) {
+      expect(finding.message, finding.code).not.toMatch(/[a-z]+_[a-z]+/);
+    }
+  });
+
+  it('writes a real sentence for every finding', () => {
+    for (const finding of outcome.findings) {
+      expect(finding.message.length, finding.code).toBeGreaterThan(20);
+      expect(finding.message[0], finding.code).toBe(finding.message[0]?.toUpperCase());
+      expect(finding.message, finding.code).toMatch(/\.$/);
+    }
+  });
+
+  it('never puts a phone number in a message, since messages are read aloud and screenshotted', () => {
+    for (const finding of outcome.findings) {
+      expect(finding.message, finding.code).not.toMatch(/254[71]\d{8}/);
+      expect(finding.message, finding.code).not.toMatch(/0[71]\d{8}/);
+    }
+  });
+
+  it('covers every way a number can fail to read', () => {
+    const messages = outcome.findings
+      .filter((f) => f.code === 'msisdn_invalid')
+      .map((f) => f.message);
+    expect(new Set(messages).size).toBe(4);
+    for (const message of messages) expect(message).not.toContain('_');
+  });
+});

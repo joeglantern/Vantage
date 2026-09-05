@@ -34,21 +34,32 @@ number Excel has coerced to text with a leading apostrophe.
 | 10 | Letters in the phone column | Blocking |
 | 11 | One digit short | Blocking |
 | 12 | A landline, not a mobile | Blocking |
-| 13 | Zero amount, somebody unpaid this cycle left in the sheet | Blocking |
+| 13 | Zero amount, somebody unpaid this cycle left in the sheet | Blocking **and** warning |
 | 14 | `1500.50`, cents M-Pesa cannot move | Blocking |
-| 15 | `50000` where `5000` was meant | Blocking, over the per-item limit |
+| 15 | `50000` where `5000` was meant | Blocking **and** warning |
 | 16 | Participant new to the organisation | Warning |
-| 17 | `P. K. Mwangi` where the records say `Peter Kimani Mwangi` | Warning |
+| 17 | `P. K. Mwangi`, the same person and number as row 2 | Blocking **and** two warnings |
 | 18 | Three times this recipient's usual amount | Warning |
 | 19 | Shares a phone with row 7, under a different name | Warning **and** blocking |
 | 20 | Fine | none |
 
 Row 15 is the one that matters. `5000` typed as `50000` is the single most
 expensive mistake in this domain, and it is the reason the per-item limit
-exists. Row 19 is worth keeping too: two people sharing one handset is
-completely normal in this context, so it warns rather than blocks on that
-ground, while still blocking as a duplicate number in one batch. Both facts are
-true at once and the exception queue has to show both.
+exists.
+
+**Several rows carry more than one finding, and rows 17 and 19 carry three
+each at two severities.** Row 17 is `P. K. Mwangi` on `0722345678`, which is
+the same person and the same number as `Peter Kimani Mwangi` on
+`+254722345678` in row 2. It blocks as a duplicate, and warns twice: the same
+number under a different name, and a name that differs from the stored record.
+Row 19 is the same shape against row 7. Two people sharing one handset is
+completely normal in this context, so that warns rather than blocks on its own
+ground, while the duplicate number still blocks. Both facts are true at once
+and the exception queue has to show both.
+
+The exact tally, computed from the file rather than counted by hand: 9 blocking
+findings across 9 rows, 8 warning findings across 6 rows, 2 rows carrying only
+a warning, and 9 rows completely clean.
 
 ## Adding to these
 

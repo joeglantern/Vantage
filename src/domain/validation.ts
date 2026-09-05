@@ -9,7 +9,7 @@
  * to give it back. Three separate rules exist to catch it.
  */
 import { compareMoney, isWholeMajorUnit, type Currency, type Money } from './money.js';
-import { normaliseMsisdn, type Msisdn } from './msisdn.js';
+import { normaliseMsisdn, type Msisdn, type MsisdnError } from './msisdn.js';
 
 export type Severity = 'blocking' | 'warning';
 
@@ -77,6 +77,27 @@ export interface ValidationOutcome {
   readonly totalMinor: bigint;
 }
 
+/**
+ * What to tell a programme officer when a number cannot be read.
+ *
+ * These used to be the raw error code interpolated into a sentence, so the
+ * exception queue showed somebody the word `contains_letters`. A finding is
+ * read by a person under time pressure who has to fix it, so each message says
+ * what is wrong and what to do about it.
+ *
+ * Keyed by MsisdnError, so a new failure mode in the normaliser is a compile
+ * error here rather than a bare token appearing on screen.
+ */
+const MSISDN_MESSAGES: Readonly<Record<MsisdnError, string>> = {
+  empty: 'No phone number in this row. Add one, or remove the row.',
+  contains_letters:
+    'The phone number contains letters or symbols. Correct it to digits only.',
+  not_a_kenyan_mobile:
+    'Not a Kenyan mobile number. It should start 07 or 01, or 254 with the country code.',
+  wrong_length:
+    'The phone number has the wrong number of digits. A Kenyan mobile has nine after the country code.',
+};
+
 export function validateBatch(
   rows: readonly ImportedRow[],
   policy: BatchPolicy,
@@ -98,7 +119,7 @@ export function validateBatch(
         code: 'msisdn_invalid',
         severity: 'blocking',
         row: row.row,
-        message: 'Phone number is not a valid Kenyan mobile: ' + normalised.reason,
+        message: MSISDN_MESSAGES[normalised.reason],
       });
     }
 
@@ -107,14 +128,14 @@ export function validateBatch(
         code: 'amount_not_positive',
         severity: 'blocking',
         row: row.row,
-        message: 'Amount must be greater than zero',
+        message: 'Amount must be greater than zero. Correct it, or remove the row.',
       });
     } else if (!isWholeMajorUnit(row.amount)) {
       findings.push({
         code: 'amount_not_whole_shilling',
         severity: 'blocking',
         row: row.row,
-        message: 'M-Pesa moves whole shillings; this amount has cents',
+        message: 'M-Pesa moves whole shillings and this amount has cents. Round it to a whole shilling.',
       });
     }
 
@@ -123,7 +144,8 @@ export function validateBatch(
         code: 'amount_exceeds_item_limit',
         severity: 'blocking',
         row: row.row,
-        message: 'Amount is above the per-item limit for this organisation',
+        message:
+          'Amount is above the per-item limit. Check for a misplaced decimal, or ask an admin to raise the limit.',
       });
     }
 
@@ -135,7 +157,8 @@ export function validateBatch(
           code: 'duplicate_recipient_in_batch',
           severity: 'blocking',
           row: row.row,
-          message: 'This number already appears in the batch at row ' + firstSeenAt,
+          message:
+            'This number already appears in the batch at row ' + firstSeenAt + '. Remove one of the two rows.',
         });
       } else {
         seenMsisdnRows.set(msisdn, row.row);
@@ -148,7 +171,9 @@ export function validateBatch(
           severity: 'warning',
           row: row.row,
           message:
-            'Same number as ' + priorName + ' but a different name. Two people sharing a phone is legitimate, but check',
+            'Same number as ' +
+            priorName +
+            ', under a different name. Two people sharing a phone is common, so check this is deliberate.',
         });
       }
       seenMsisdnNames.set(msisdn, row.fullName);
@@ -159,7 +184,7 @@ export function validateBatch(
           code: 'recipient_new_to_organisation',
           severity: 'warning',
           row: row.row,
-          message: 'This recipient is new to your organisation',
+          message: 'This recipient is new to your organisation. Check the number before approving.',
         });
       } else {
         if (!namesMatch(record.fullName, row.fullName)) {
@@ -168,7 +193,9 @@ export function validateBatch(
             severity: 'warning',
             row: row.row,
             message:
-              'Name differs from the stored ' + record.fullName + '. The number may have been reassigned',
+              'Name differs from the stored ' +
+              record.fullName +
+              '. The number may have been reassigned, so check before paying.',
           });
         }
         if (
@@ -184,7 +211,7 @@ export function validateBatch(
             code: 'amount_deviates_from_usual',
             severity: 'warning',
             row: row.row,
-            message: 'Amount differs sharply from what this recipient usually receives',
+            message: 'Amount differs sharply from what this recipient usually receives. Check it is intended.',
           });
         }
       }
@@ -205,7 +232,8 @@ export function validateBatch(
       code: 'batch_exceeds_batch_limit',
       severity: 'blocking',
       row: null,
-      message: 'Batch total is above the per-batch limit for this organisation',
+      message:
+        'Batch total is above the per-batch limit. Split the batch, or ask an admin to raise the limit.',
     });
   }
 
